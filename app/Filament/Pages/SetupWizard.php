@@ -7,163 +7,108 @@ use App\Enums\UserStatus;
 use App\Models\Setting;
 use App\Models\User;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Pages\SimplePage;
-use Filament\Schemas\Components\EmbeddedSchema;
-use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\Wizard;
-use Filament\Schemas\Components\Wizard\Step;
-use Filament\Schemas\Schema;
-use Filament\Support\Enums\Width;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\HtmlString;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
-class SetupWizard extends SimplePage
+#[Layout('layouts.setup')]
+class SetupWizard extends Component
 {
-    protected static string $layout = 'filament-panels::components.layout.simple';
-
-    protected static ?string $slug = 'setup';
-
-    protected static bool $shouldRegisterNavigation = false;
+    /**
+     * Current wizard step.
+     * Step 1 = Admin Account, Step 2+ = configuration steps.
+     */
+    public int $currentStep = 1;
 
     /**
-     * @var array<string, mixed>|null
+     * Total steps. Increment this as new config steps are added.
+     * Currently: 1 (admin account) + 1 (system mode) = 2.
      */
-    public ?array $data = [];
-    // Filament forms store data inside this variable.
+    public int $totalSteps = 4;
+
+    // ── Step 1: Admin Account ────────────────────────────────────────────────
+
+    public string $name = '';
+
+    public string $email = '';
+
+    public ?string $phone = null;
+
+    public string $password = '';
+
+    public string $passwordConfirmation = '';
+
+    // ── Step 2: System Mode ──────────────────────────────────────────────────
+
+    public string $systemMode = 'single';
+
+    // ────────────────────────────────────────────────────────────────────────
 
     public function mount(): void
     {
-        Filament::setCurrentPanel(Filament::getDefaultPanel());
-        Filament::bootCurrentPanel();
-        // This ensures Filament knows which panel is active.Because this page is outside normal admin routes
-
         if (Setting::get('setup_completed') === 'true') {
             $this->redirect('/');
+        }
+    }
+
+    public function nextStep(): void
+    {
+        $this->validateCurrentStep();
+
+        if ($this->currentStep >= $this->totalSteps) {
+            $this->complete();
 
             return;
         }
 
-        $this->form->fill();
+        $this->currentStep++;
     }
 
-    public function getTitle(): string|Htmlable
+    public function previousStep(): void
     {
-        return 'Setup Wizard';
+        $this->currentStep = max(1, $this->currentStep - 1);
     }
 
-    public function getHeading(): string|Htmlable|null
+    protected function validateCurrentStep(): void
     {
-        return 'BookingHub Setup';
+        match ($this->currentStep) {
+            1 => $this->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+                'phone' => ['nullable', 'string', 'max:20'],
+                'password' => ['required', 'string', 'min:8', 'same:passwordConfirmation'],
+                'passwordConfirmation' => ['required', 'string'],
+            ]),
+            2 => $this->validate([
+                'systemMode' => ['required', 'in:single,multi'],
+            ]),
+            default => null,
+        };
     }
 
-    public function getSubheading(): string|Htmlable|null
+    protected function complete(): void
     {
-        return 'Complete the initial setup to get started.';
-    }
-
-    public function getMaxWidth(): Width|string|null
-    {
-        return Width::TwoExtraLarge;
-    }
-
-    public function hasLogo(): bool
-    {
-        return true;
-    }
-
-    public function content(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                Form::make([EmbeddedSchema::make('form')])
-                    ->id('form')
-                    ->livewireSubmitHandler('complete'),
-            ]);
-    }
-
-    public function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                Wizard::make([
-                    Step::make('Admin Account')
-                        ->description('Create the super admin account')
-                        ->icon('heroicon-o-user')
-                        ->schema([
-                            TextInput::make('name')
-                                ->label('Name')
-                                ->prefixIcon('heroicon-m-user')
-                                ->required()
-                                ->maxLength(255),
-                            TextInput::make('email')
-                                ->label('Email')
-                                ->prefixIcon('heroicon-m-envelope')
-                                ->email()
-                                ->required()
-                                ->unique(User::class, 'email')
-                                ->maxLength(255),
-                            TextInput::make('phone')
-                                ->label('Phone')
-                                ->prefixIcon('heroicon-m-phone')
-                                ->tel()
-                                ->nullable()
-                                ->maxLength(20),
-                            TextInput::make('password')
-                                ->label('Password')
-                                ->prefixIcon('heroicon-m-lock-closed')
-                                ->password()
-                                ->revealable()
-                                ->required()
-                                ->minLength(8)
-                                ->confirmed(),
-                            TextInput::make('password_confirmation')
-                                ->label('Confirm Password')
-                                ->prefixIcon('heroicon-m-lock-closed')
-                                ->password()
-                                ->revealable()
-                                ->required(),
-                        ])
-                        ->columns(1),
-                ])
-                    ->submitAction(new HtmlString(Blade::render(<<<'BLADE'
-                        <x-filament::button
-                            type="submit"
-                            size="sm"
-                        >
-                            Complete Setup
-                        </x-filament::button>
-                    BLADE))),
-            ])
-            ->statePath('data');
-    }
-
-    public function complete(): void
-    {
-        $data = $this->form->getState();
-
         /** @var User $user */
         $user = User::query()->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'password' => $data['password'],
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone ?: null,
+            'password' => $this->password,
             'role' => UserRole::Admin,
             'status' => UserStatus::Active,
             'email_verified_at' => now(),
-        ]); 
+        ]);
 
+        Setting::set('system_mode', $this->systemMode);
         Setting::set('setup_completed', 'true');
 
+        Filament::setCurrentPanel(Filament::getDefaultPanel());
         Filament::auth()->login($user);
 
-        Notification::make()
-            ->title('Setup completed successfully!')
-            ->success()
-            ->send();
-
         $this->redirect('/');
+    }
+
+    public function render(): \Illuminate\View\View
+    {
+        return view('livewire.setup-wizard');
     }
 }
