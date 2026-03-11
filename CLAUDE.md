@@ -26,6 +26,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+- use services and actions and keep controllers thin, always follow good code practice.
 
 ## Verification Scripts
 
@@ -170,11 +171,156 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - Use environment variables only in configuration files - never use the `env()` function directly outside of config files. Always use `config('app.name')`, not `env('APP_NAME')`.
 
-## Testing
+=== architecture rules ===
 
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+# Architecture
+
+- Controllers must remain thin. Controllers should only:
+  - receive request
+  - call service classes
+  - return response
+
+Services may call multiple Actions.
+Actions must never call Services.
+
+- Business logic must never be placed in:
+  - Controllers
+  - Filament Resources
+  - Livewire components
+
+- Business logic must live in:
+  - Services
+  - Actions
+
+Structure:
+
+Controller
+   → Service
+      → Action
+
+Example:
+
+CreateBookingController
+   → BookingService
+      → CreateBookingAction
+      → LockInventoryAction
+      → CalculateTaxesAction
+
+- Each Action must have a single public method:
+handle()
+
+- Action naming format:
+Verb + Entity + Action
+
+Examples:
+CreateBookingAction
+CancelBookingAction
+LockInventoryAction
+CalculateCommissionAction
+
+=== filament rules ===
+
+# Filament Admin Panel Rules
+
+- Filament Resources must not contain business logic.
+
+- Filament Resources should only:
+  - define forms
+  - define tables
+  - call services
+
+Example:
+
+Instead of:
+
+Property::create($data)
+
+Use:
+
+app(PropertyService::class)->createProperty($data);
+
+- Do not place database logic inside Filament actions.
+
+=== project structure rules ===
+
+# Application Folder Structure
+
+Follow this structure:
+
+app/
+  Actions/
+  Services/
+  Enums/
+  Models/
+  Http/
+    Controllers/
+    Requests/
+  Policies/
+
+Do not create new top-level directories without approval.
+
+=== booking rules ===
+
+# Booking Engine Rules
+
+- Inventory must always be validated before creating a booking.
+
+- Inventory locking must be used before payment.
+
+Flow:
+
+Check availability
+→ Create inventory lock
+→ Create pending booking
+→ Process payment
+→ Confirm booking
+
+- Inventory locks must expire automatically using expires_at.
+
+=== deletion rules ===
+
+# Deletion Rules
+
+All entities must use soft deletes.
+
+Never use hard deletes unless explicitly approved.
+
+Tables using soft deletes:
+users
+partners
+properties
+branches
+room_types
+bookings
+
+=== enum rules ===
+
+# Enums
+
+Statuses must use PHP Enums instead of raw strings.
+
+Examples:
+
+UserStatus
+BookingStatus
+PartnerStatus
+PropertyStatus
+
+When generating migrations, always include indexes for foreign keys.
+
+
+=== testing rules ===
+
+Testing should focus only on critical business logic.
+
+Write tests only for:
+- booking creation
+- inventory locking
+- cancellation logic
+- refund logic
+- financial calculations
+
+Do not generate tests for simple CRUD or Filament resources unless requested.
 
 ## Vite Error
 
@@ -222,6 +368,9 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
 - Tests should cover all happy paths, failure paths, and edge cases.
 - You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files; these are core to the application.
+
+# must follow
+I will give you exact details each time, you will never assume anything, and always ask me if there is a query anywhere. also dont just code it, give me detailed explaination of each thing everytime
 
 ## Running Tests
 

@@ -6,16 +6,20 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Country;
 use App\Models\OperatingCountry;
+use App\Models\PropertyType;
 use App\Models\Setting;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.setup')]
 class SetupWizard extends Component
 {
+    use WithFileUploads;
+
     /**
      * component classs = logic + memory
      * view = presentation
@@ -52,6 +56,18 @@ class SetupWizard extends Component
     public array $selectedCountries = [];
 
     public string $countrySearch = '';
+
+    // ── Step 4: Property Type ─────────────────────────────────────────────────
+
+    public string $selectedPropertyType = '';
+
+    public bool $showAddPropertyTypeModal = false;
+
+    public string $newPropertyTypeName = '';
+
+    public string $newPropertyTypeDescription = '';
+
+    public $newPropertyTypeIcon = null;
 
     // ────────────────────────────────────────────────────────────────────────
 
@@ -91,6 +107,41 @@ class SetupWizard extends Component
         }
     }
 
+    public function openAddPropertyTypeModal(): void
+    {
+        $this->showAddPropertyTypeModal = true;
+    }
+
+    public function closeAddPropertyTypeModal(): void
+    {
+        $this->showAddPropertyTypeModal = false;
+        $this->newPropertyTypeName = '';
+        $this->newPropertyTypeDescription = '';
+        $this->newPropertyTypeIcon = null;
+        $this->resetValidation(['newPropertyTypeName', 'newPropertyTypeDescription', 'newPropertyTypeIcon']);
+    }
+
+    public function createPropertyType(): void
+    {
+        $this->validate([
+            'newPropertyTypeName' => ['required', 'string', 'max:255', 'unique:property_types,name'],
+            'newPropertyTypeDescription' => ['required', 'string', 'max:1000'],
+            'newPropertyTypeIcon' => ['required', 'file', 'max:5120', 'mimes:png,svg'],
+        ]);
+
+        $filename = $this->newPropertyTypeIcon->store('propertyTypes', 'public');
+
+        PropertyType::query()->create([
+            'name' => $this->newPropertyTypeName,
+            'description' => $this->newPropertyTypeDescription,
+            'icon' => basename($filename),
+            'is_default' => false,
+            'is_active' => false,
+        ]);
+
+        $this->closeAddPropertyTypeModal();
+    }
+
     protected function validateCurrentStep(): void
     {
         match ($this->currentStep) {
@@ -107,6 +158,9 @@ class SetupWizard extends Component
             3 => $this->validate([
                 'selectedCountries' => ['required', 'array', 'min:1'],
                 'selectedCountries.*' => ['integer', 'exists:countries,id'],
+            ]),
+            4 => $this->validate([
+                'selectedPropertyType' => ['required', 'exists:property_types,id'],
             ]),
             default => null,
         };
@@ -136,6 +190,9 @@ class SetupWizard extends Component
             ], $this->selectedCountries)
         );
 
+        PropertyType::query()->update(['is_active' => false]);
+        PropertyType::query()->where('id', $this->selectedPropertyType)->update(['is_active' => true]);
+
         Setting::set('setup_completed', 'true');
 
         Filament::setCurrentPanel(Filament::getDefaultPanel());
@@ -156,6 +213,10 @@ class SetupWizard extends Component
                 ->get()
             : new Collection;
 
-        return view('livewire.setup-wizard', compact('countries'));
+        $propertyTypes = $this->currentStep === 4
+            ? PropertyType::query()->orderByDesc('is_default')->orderBy('name')->get()
+            : new Collection;
+
+        return view('livewire.setup-wizard', compact('countries', 'propertyTypes'));
     }
 }

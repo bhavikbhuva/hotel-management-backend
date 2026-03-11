@@ -379,8 +379,163 @@
                     @endif
                     {{-- End Step 3 --}}
 
+                    {{-- ─── Step 4: Property Type ─────────────────────────── --}}
+                    @if ($currentStep === 4)
+                        <div class="w-full">
+
+                            {{-- Step Title --}}
+                            <h1 class="text-xl font-bold text-gray-900">Property Type</h1>
+                            <p class="mt-1 text-sm text-gray-500">What type of property will you manage on this platform?</p>
+
+                            {{-- Property Type Grid --}}
+                            <div class="mt-6 grid grid-cols-4 gap-4">
+                                @foreach ($propertyTypes as $type)
+                                    @php $isSelected = $selectedPropertyType === (string) $type->id; @endphp
+                                    <div
+                                        wire:click="$set('selectedPropertyType', '{{ $type->id }}')"
+                                        class="cursor-pointer rounded-lg border p-4 transition-colors {{ $isSelected ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-300' }}"
+                                    >
+                                        {{-- Top row: icon + checkbox --}}
+                                        <div class="flex items-start justify-between">
+                                            @if ($type->is_default)
+                                                <img
+                                                    src="/assets/propertyTypes/{{ $type->icon }}"
+                                                    alt="{{ $type->name }}"
+                                                    class="h-10 w-10 object-contain"
+                                                />
+                                            @else
+                                                <img
+                                                    src="{{ Storage::url('propertyTypes/' . $type->icon) }}"
+                                                    alt="{{ $type->name }}"
+                                                    class="h-10 w-10 object-contain"
+                                                />
+                                            @endif
+                                            {{-- Checkbox indicator --}}
+                                            @if ($isSelected)
+                                                <div class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 border-blue-600 bg-blue-600">
+                                                    <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                                    </svg>
+                                                </div>
+                                            @else
+                                                <div class="h-5 w-5 flex-shrink-0 rounded border-2 border-gray-300"></div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Type name --}}
+                                        <p class="mt-3 text-sm font-semibold text-gray-900">{{ $type->name }}</p>
+                                    </div>
+                                @endforeach
+
+                                {{-- Add Property Type Card --}}
+                                <div
+                                    wire:click="openAddPropertyTypeModal"
+                                    class="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 p-4 transition-colors hover:border-blue-300 hover:bg-blue-100"
+                                >
+                                    <p class="text-center text-sm text-gray-600">Don't see your property type?<br>Create a new one.</p>
+                                    <button type="button" class="mt-3 flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white">
+                                        Add Property Type
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            @error('selectedPropertyType')
+                                <p class="mt-3 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                        </div>
+                    @endif
+                    {{-- End Step 4 --}}
+
                 </div>
                 {{-- End Scrollable Content --}}
+
+                {{-- ── Add Property Type Modal ────────────────────────────── --}}
+                @if ($showAddPropertyTypeModal)
+                    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+
+                            {{-- Modal Header --}}
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-bold text-gray-900">Add New Property Type</h2>
+                                <button wire:click="closeAddPropertyTypeModal" type="button" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="mt-5 space-y-4">
+
+                                {{-- Icon Upload --}}
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        Property Type Icon <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="flex flex-col items-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-6">
+                                        @if ($newPropertyTypeIcon)
+                                            <img src="{{ $newPropertyTypeIcon->temporaryUrl() }}" alt="Preview" class="mb-2 h-12 w-12 object-contain" />
+                                        @else
+                                            <svg class="mb-2 h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                            </svg>
+                                        @endif
+                                        <p class="text-sm text-gray-500">
+                                            Drag and Drop file here or
+                                            <label class="cursor-pointer font-medium text-blue-600 hover:text-blue-700">
+                                                Choose File
+                                                <input wire:model="newPropertyTypeIcon" type="file" accept=".png,.svg" class="hidden" />
+                                            </label>
+                                        </p>
+                                    </div>
+                                    <div class="mt-1 flex justify-between text-xs text-gray-400">
+                                        <span>Maximum Size: 5MB</span>
+                                        <span>Supported Files: PNG/SVG</span>
+                                    </div>
+                                    @error('newPropertyTypeIcon') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Name --}}
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        Property Type Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input wire:model="newPropertyTypeName" type="text" placeholder="Enter Property Type Name"
+                                        class="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                                    @error('newPropertyTypeName') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+
+                                {{-- Description --}}
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">
+                                        Description <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea wire:model="newPropertyTypeDescription" rows="4" placeholder="Brief description of this property type..."
+                                        class="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"></textarea>
+                                    @error('newPropertyTypeDescription') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+
+                            </div>
+
+                            {{-- Modal Footer --}}
+                            <div class="mt-6 flex items-center justify-end gap-3">
+                                <button wire:click="closeAddPropertyTypeModal" type="button"
+                                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button wire:click="createPropertyType" wire:loading.attr="disabled" type="button"
+                                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="createPropertyType">Create Property Type</span>
+                                    <span wire:loading wire:target="createPropertyType">Creating&hellip;</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                @endif
 
                 {{-- ── Footer Navigation ────────────────────────────────── --}}
                 <div class="flex flex-shrink-0 items-center justify-between border-t border-gray-100 px-10 py-5">
@@ -388,13 +543,17 @@
                     <div class="flex items-center gap-3">
                         @if ($currentStep > 1)
                             <button wire:click="previousStep" type="button"
-                                class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Back
+                                class="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                &larr; Previous
                             </button>
                         @endif
                         <button wire:click="nextStep" wire:loading.attr="disabled" type="button"
                             class="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
-                            <span wire:loading.remove wire:target="nextStep">Next &rarr;</span>
+                            @if ($currentStep === $totalSteps)
+                                <span wire:loading.remove wire:target="nextStep">Finish Setup &rarr;</span>
+                            @else
+                                <span wire:loading.remove wire:target="nextStep">Next &rarr;</span>
+                            @endif
                             <span wire:loading wire:target="nextStep">Processing&hellip;</span>
                         </button>
                     </div>
