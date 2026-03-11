@@ -139,7 +139,7 @@
                 @php
                     $configSteps = [
                         2 => ['name' => 'Setup Mode',     'description' => 'System Structure'],
-                        3 => ['name' => 'Select Country', 'description' => 'Operating Country'],
+                        3 => ['name' => 'Select Countries', 'description' => 'Operating Countries'],
                         4 => ['name' => 'Property Type',  'description' => 'Property Category'],
                     ];
                 @endphp
@@ -296,6 +296,88 @@
                         </div>
                     @endif
                     {{-- End Step 2 --}}
+
+                    {{-- ─── Step 3: Select Country ──────────────────────── --}}
+                    @if ($currentStep === 3)
+                        <div class="w-full">
+
+                            {{-- Step Title + Search Bar --}}
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h1 class="text-xl font-bold text-gray-900">Select Countries</h1>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Select the countries where your business operates.
+                                        @if (count($selectedCountries) > 0)
+                                            <span class="font-medium text-blue-600">{{ count($selectedCountries) }} selected</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="flex flex-shrink-0 items-center gap-2">
+                                    <input
+                                        wire:model.live.debounce.300ms="countrySearch"
+                                        type="text"
+                                        placeholder="Search Country"
+                                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                    />
+                                    <button type="button"
+                                        class="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                        </svg>
+                                        Search
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Country Grid --}}
+                            <div class="mt-6 grid grid-cols-4 gap-4">
+                                @forelse ($countries as $country)
+                                    @php $isSelected = in_array($country->id, $selectedCountries); @endphp
+                                    <div
+                                        wire:click="toggleCountry({{ $country->id }})"
+                                        class="cursor-pointer rounded-lg border p-4 transition-colors {{ $isSelected ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-300' }}"
+                                    >
+                                        {{-- Top row: flag + checkbox --}}
+                                        <div class="flex items-start justify-between">
+                                            <img
+                                                src="/assets/flags/{{ $country->iso_code }}.svg"
+                                                alt="{{ $country->name }}"
+                                                class="h-12 w-12 rounded-full border border-gray-100 object-cover"
+                                            />
+                                            {{-- Checkbox indicator --}}
+                                            @if ($isSelected)
+                                                <div class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 border-blue-600 bg-blue-600">
+                                                    <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                                    </svg>
+                                                </div>
+                                            @else
+                                                <div class="h-5 w-5 flex-shrink-0 rounded border-2 border-gray-300"></div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Country name --}}
+                                        <p class="mt-3 text-sm font-semibold text-gray-900">{{ $country->name }}</p>
+
+                                        {{-- Currency --}}
+                                        <p class="mt-0.5 truncate text-xs text-gray-400">
+                                            {{ $country->currency_symbol ? $country->currency_symbol . ' ' : '' }}{{ $country->currency_code }} &mdash; {{ $country->currency_name }}
+                                        </p>
+                                    </div>
+                                @empty
+                                    <div class="col-span-4 py-12 text-center text-sm text-gray-400">
+                                        No countries found for "{{ $countrySearch }}".
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            @error('selectedCountries')
+                                <p class="mt-3 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                        </div>
+                    @endif
+                    {{-- End Step 3 --}}
 
                 </div>
                 {{-- End Scrollable Content --}}

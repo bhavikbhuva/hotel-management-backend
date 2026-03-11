@@ -4,9 +4,12 @@ namespace App\Filament\Pages;
 
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Models\Country;
+use App\Models\OperatingCountry;
 use App\Models\Setting;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -14,6 +17,9 @@ use Livewire\Component;
 class SetupWizard extends Component
 {
     /**
+     * component classs = logic + memory
+     * view = presentation
+     *
      * Current wizard step.
      * Step 1 = Admin Account, Step 2+ = configuration steps.
      */
@@ -40,6 +46,12 @@ class SetupWizard extends Component
     // ── Step 2: System Mode ──────────────────────────────────────────────────
 
     public string $systemMode = 'single';
+
+    // ── Step 3: Countries ─────────────────────────────────────────────────────
+
+    public array $selectedCountries = [];
+
+    public string $countrySearch = '';
 
     // ────────────────────────────────────────────────────────────────────────
 
@@ -68,6 +80,17 @@ class SetupWizard extends Component
         $this->currentStep = max(1, $this->currentStep - 1);
     }
 
+    public function toggleCountry(int $countryId): void
+    {
+        if (in_array($countryId, $this->selectedCountries)) {
+            $this->selectedCountries = array_values(
+                array_diff($this->selectedCountries, [$countryId])
+            );
+        } else {
+            $this->selectedCountries[] = $countryId;
+        }
+    }
+
     protected function validateCurrentStep(): void
     {
         match ($this->currentStep) {
@@ -80,6 +103,10 @@ class SetupWizard extends Component
             ]),
             2 => $this->validate([
                 'systemMode' => ['required', 'in:single,multi'],
+            ]),
+            3 => $this->validate([
+                'selectedCountries' => ['required', 'array', 'min:1'],
+                'selectedCountries.*' => ['integer', 'exists:countries,id'],
             ]),
             default => null,
         };
@@ -99,6 +126,16 @@ class SetupWizard extends Component
         ]);
 
         Setting::set('system_mode', $this->systemMode);
+
+        OperatingCountry::query()->delete();
+        OperatingCountry::query()->insert(
+            array_map(fn (int $id) => [
+                'country_id' => $id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], $this->selectedCountries)
+        );
+
         Setting::set('setup_completed', 'true');
 
         Filament::setCurrentPanel(Filament::getDefaultPanel());
@@ -109,6 +146,16 @@ class SetupWizard extends Component
 
     public function render(): \Illuminate\View\View
     {
-        return view('livewire.setup-wizard');
+        $countries = $this->currentStep === 3
+            ? Country::query()
+                ->where('is_active', true)
+                ->when($this->countrySearch, fn ($q) => $q
+                    ->where('name', 'like', "%{$this->countrySearch}%")
+                    ->orWhere('currency_name', 'like', "%{$this->countrySearch}%"))
+                ->orderBy('name')
+                ->get()
+            : new Collection;
+
+        return view('livewire.setup-wizard', compact('countries'));
     }
 }
