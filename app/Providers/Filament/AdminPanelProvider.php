@@ -6,10 +6,12 @@ use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\EnsureSetupIsCompleted;
 use App\Http\Middleware\FilamentAuthenticate;
 use App\Livewire\Topbar;
+use Filament\Enums\GlobalSearchPosition;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -37,7 +39,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName(config('app.name'))
             ->sidebarWidth('18rem')
+            ->globalSearch(position: GlobalSearchPosition::Sidebar)
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->topbarLivewireComponent(Topbar::class)
+            ->navigationGroups([
+                NavigationGroup::make('Location & Policies')
+                    ->icon(Heroicon::OutlinedMapPin),
+            ])
             ->userMenuItems([
                 MenuItem::make()
                     ->label('My Profile')
