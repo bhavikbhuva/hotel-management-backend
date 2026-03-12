@@ -55,6 +55,7 @@ class Dashboard extends BaseDashboard
                 'label' => $task->label(),
                 'description' => $task->description(),
                 'buttonLabel' => $task->buttonLabel(),
+                'route' => $task->route(),
                 'isCompleted' => $record?->completed_at !== null,
                 'isGlobal' => $task->isGlobal(),
             ];

@@ -9,9 +9,11 @@ use App\Livewire\Topbar;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -36,6 +38,15 @@ class AdminPanelProvider extends PanelProvider
             ->brandName(config('app.name'))
             ->sidebarWidth('18rem')
             ->topbarLivewireComponent(Topbar::class)
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('My Profile')
+                    ->url('/admin-profile')
+                    ->icon(Heroicon::OutlinedUser),
+                'logout' => MenuItem::make()
+                    ->label('Log Out')
+                    ->color('danger'),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([])

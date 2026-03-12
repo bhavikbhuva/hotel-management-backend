@@ -25,7 +25,7 @@
 
                         {{-- Name --}}
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">Name</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -40,7 +40,7 @@
 
                         {{-- Email --}}
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">Email</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -53,10 +53,10 @@
                             @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
 
-                        {{-- Phone (optional) --}}
+                        {{-- Phone --}}
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700">
-                                Phone <span class="font-normal text-gray-400">(optional)</span>
+                                Phone <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -65,13 +65,14 @@
                                     </svg>
                                 </div>
                                 <input wire:model="phone" type="tel" placeholder="+1 234 567 8900"
-                                    class="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    class="block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('phone') ? 'border-red-400' : 'border-gray-300' }}" />
                             </div>
+                            @error('phone') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Password --}}
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -86,7 +87,7 @@
 
                         {{-- Confirm Password --}}
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">Confirm Password <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

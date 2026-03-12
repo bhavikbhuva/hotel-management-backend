@@ -43,6 +43,17 @@ enum SetupTask: string
         };
     }
 
+    public function route(): string
+    {
+        return match ($this) {
+            self::AdminProfile => '/admin-profile',
+            self::Cities => '/cities',
+            self::Taxes => '/taxes',
+            self::CancellationPolicy => '/cancellation-policy',
+            self::LegalPolicy => '/legal-policy',
+        };
+    }
+
     public function isGlobal(): bool
     {
         return $this === self::AdminProfile;

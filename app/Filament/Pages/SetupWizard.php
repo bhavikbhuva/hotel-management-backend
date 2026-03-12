@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\SetupTask;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Country;
@@ -149,7 +150,7 @@ class SetupWizard extends Component
             1 => $this->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-                'phone' => ['nullable', 'string', 'max:20'],
+                'phone' => ['required', 'string', 'max:20'],
                 'password' => ['required', 'string', 'min:8', 'same:passwordConfirmation'],
                 'passwordConfirmation' => ['required', 'string'],
             ]),
@@ -197,6 +198,9 @@ class SetupWizard extends Component
         $user->update(['current_country_id' => $this->selectedCountries[0]]);
 
         CountrySetupTask::seedForCountries($this->selectedCountries);
+
+        // Auto-mark admin_profile as complete (data already filled during wizard)
+        CountrySetupTask::markComplete(SetupTask::AdminProfile);
 
         Setting::set('setup_completed', 'true');
 

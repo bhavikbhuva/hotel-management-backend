@@ -58,6 +58,8 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Filament/Pages/Dashboard.php` | Custom dashboard — shows checklist or actual dashboard |
 | `app/Livewire/Topbar.php` | Custom topbar — country switcher, branch dropdown, notifications |
 | `resources/views/livewire/topbar.blade.php` | Custom topbar Blade view |
+| `app/Filament/Pages/AdminProfile.php` | Admin profile page — view profile, edit modal, change password |
+| `resources/views/filament/pages/admin-profile.blade.php` | Admin profile Blade view — profile card, password form |
 | `resources/views/filament/pages/dashboard-checklist.blade.php` | Platform Setup Checklist view |
 | `resources/views/livewire/setup-wizard.blade.php` | Full custom Blade view for the setup wizard |
 | `resources/views/layouts/setup.blade.php` | Minimal HTML layout for the setup wizard (Vite + Livewire assets) |
