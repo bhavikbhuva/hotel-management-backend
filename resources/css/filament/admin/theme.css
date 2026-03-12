@@ -37,4 +37,13 @@
     .fi-layout {
         padding-inline-start: var(--sidebar-width, 16rem);
     }
+
+    /* Show brand/logo in sidebar on desktop (Filament hides it when topbar exists) */
+    .fi-body-has-topbar .fi-sidebar-header {
+        display: flex;
+        background: transparent;
+        box-shadow: none;
+        --tw-ring-shadow: 0 0 #0000;
+        padding-inline: 1.5rem;
+    }
 }

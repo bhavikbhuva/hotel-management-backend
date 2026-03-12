@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->brandName('BookingHub')
+            ->brandName(config('app.name'))
             ->sidebarWidth('18rem')
             ->topbarLivewireComponent(Topbar::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
