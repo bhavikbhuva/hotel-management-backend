@@ -1,0 +1,40 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../app/Livewire/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/livewire/**/*';
+
+/*
+ * Layout restructure: Sidebar full-height, topbar only above content.
+ *
+ * Approach: Fix the sidebar in place, then push the topbar
+ * to the right so it doesn't overlap the sidebar.
+ */
+@media (min-width: 1024px) {
+
+    /* Sidebar: fixed, full viewport height, with border */
+    .fi-sidebar.fi-main-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        inset-inline-start: 0;
+        z-index: 40;
+        overflow-y: auto;
+        border-inline-end: 1px solid rgb(229 231 235);
+    }
+
+    :is(.dark .fi-sidebar.fi-main-sidebar) {
+        border-inline-end-color: rgb(55 65 81);
+    }
+
+    /* Topbar: push right so it doesn't sit above the sidebar */
+    .fi-topbar-ctn {
+        margin-inline-start: var(--sidebar-width, 20rem);
+    }
+
+    /* Content area: push right to account for fixed sidebar */
+    .fi-layout {
+        padding-inline-start: var(--sidebar-width, 16rem);
+    }
+}

@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -39,6 +40,8 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at',
         'phone_verified_at',
         'last_login_at',
+        'current_country_id',
+        'current_branch_id',
     ];
 
     /**
@@ -66,6 +69,22 @@ class User extends Authenticatable implements FilamentUser
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function currentCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'current_country_id');
+    }
+
+    /**
+     * Switch the user's active country context and reset branch.
+     */
+    public function switchCountry(int $countryId): void
+    {
+        $this->update([
+            'current_country_id' => $countryId,
+            'current_branch_id' => null,
+        ]);
     }
 
     /**

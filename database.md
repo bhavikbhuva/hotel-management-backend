@@ -43,6 +43,8 @@ Table users {
   locale varchar [default: 'en']
   auth_provider varchar [null]
   country_id int [null, ref: > countries.id]
+  current_country_id int [null, ref: > countries.id]
+  current_branch_id int [null, ref: > branches.id]
   referral_code varchar [null, unique]
   referred_by int [null, ref: > users.id]
   email_verified_at datetime [null]
@@ -63,6 +65,19 @@ Table property_types {
   is_active boolean [default: false]
   created_at datetime
   updated_at datetime
+}
+
+Table country_setup_tasks {
+  id int [pk]
+  country_id int [null, ref: > countries.id]
+  task_key varchar
+  completed_at datetime [null]
+  created_at datetime
+  updated_at datetime
+
+  indexes {
+    (country_id, task_key) [unique]
+  }
 }
 
 // ══════════════════════════════════════════════════════════════

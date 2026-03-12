@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Country;
+use App\Models\CountrySetupTask;
 use App\Models\OperatingCountry;
 use App\Models\PropertyType;
 use App\Models\Setting;
@@ -192,6 +193,10 @@ class SetupWizard extends Component
 
         PropertyType::query()->update(['is_active' => false]);
         PropertyType::query()->where('id', $this->selectedPropertyType)->update(['is_active' => true]);
+
+        $user->update(['current_country_id' => $this->selectedCountries[0]]);
+
+        CountrySetupTask::seedForCountries($this->selectedCountries);
 
         Setting::set('setup_completed', 'true');
 

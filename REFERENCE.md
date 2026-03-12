@@ -53,6 +53,12 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Models/PropertyType.php` | Property type model — is_active flag for selection |
 | `app/Enums/UserRole.php` | Enum: `Admin`, `Partner`, `Staff`, `Customer` |
 | `app/Enums/UserStatus.php` | Enum: `Active`, `Inactive`, `Suspended`, `Banned` |
+| `app/Enums/SetupTask.php` | Enum: `AdminProfile`, `Cities`, `Taxes`, `CancellationPolicy`, `LegalPolicy` |
+| `app/Models/CountrySetupTask.php` | Tracks setup task completion per country |
+| `app/Filament/Pages/Dashboard.php` | Custom dashboard — shows checklist or actual dashboard |
+| `app/Livewire/Topbar.php` | Custom topbar — country switcher, branch dropdown, notifications |
+| `resources/views/livewire/topbar.blade.php` | Custom topbar Blade view |
+| `resources/views/filament/pages/dashboard-checklist.blade.php` | Platform Setup Checklist view |
 | `resources/views/livewire/setup-wizard.blade.php` | Full custom Blade view for the setup wizard |
 | `resources/views/layouts/setup.blade.php` | Minimal HTML layout for the setup wizard (Vite + Livewire assets) |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
@@ -190,11 +196,17 @@ complete():
   - Setting::set('system_mode', 'single'|'multi')
   - Bulk inserts selected countries into `operating_countries` table
   - Updates `property_types.is_active` for the selected type
+  - Sets `current_country_id` on user to first selected country
+  - Seeds `country_setup_tasks` rows (1 global + 4 per country)
   - Setting::set('setup_completed', 'true')
   - Filament::auth()->login($user)
   - Redirect to /
        ↓
-User lands on Filament dashboard, logged in as admin
+Dashboard checks if all 5 setup tasks are complete for current country
+  - If incomplete → shows Platform Setup Checklist (5 cards + progress bar)
+  - If complete → shows actual dashboard (widgets, charts, stats)
+       ↓
+User completes all 5 config pages → main dashboard unlocks for that country
 ```
 
 After setup:
@@ -268,6 +280,61 @@ Admin chooses one property type during setup (what they operate — Hotel, Villa
 - Fields: icon upload (PNG/SVG, max 5MB), name (unique), description (required)
 - `createPropertyType()` validates, stores icon, creates record with `is_default = false, is_active = false`
 - New types appear in grid unselected (user must manually check them)
+
+### Country Context & Setup Tasks
+
+**`current_country_id` and `current_branch_id` on `users` table:**
+Admin's active country/branch context. Persists across sessions (stored in DB, not session). When switching country, branch resets to null (branches are country-scoped).
+
+**`country_setup_tasks` table** — tracks completion of 5 setup tasks per country:
+```
+id, country_id (FK → countries, nullable), task_key (string), completed_at (datetime, nullable), timestamps
+unique(country_id, task_key)
+```
+
+**`SetupTask` enum** (`app/Enums/SetupTask.php`):
+- `AdminProfile` — global (country_id = null), counts as done for all countries
+- `Cities` — per-country
+- `Taxes` — per-country
+- `CancellationPolicy` — per-country
+- `LegalPolicy` — per-country
+
+Each enum case provides: `label()`, `description()`, `buttonLabel()`, `isGlobal()`, `countryScoped()`.
+
+**`CountrySetupTask` model** (`app/Models/CountrySetupTask.php`):
+- Scopes: `forCountry($id)` (includes global tasks), `completed()`, `incomplete()`
+- Static helpers: `isCountryFullySetup($id)`, `markComplete($task, $countryId)`, `seedForCountries($ids)`
+- Seeded during `SetupWizard::complete()` — not in a database seeder
+
+**Dashboard unlock logic:** All 5 tasks (1 global + 4 country-specific) must be complete for the selected country. Each country is independent — completing Country A doesn't affect Country B.
+
+### Custom Topbar
+
+**`app/Livewire/Topbar.php`** replaces Filament's default topbar via `->topbarLivewireComponent()`.
+
+Layout: `[← back] [Branch dropdown] ............ [Country dropdown] [🔔] [User menu]`
+
+- **Back button**: `history.back()` via JS
+- **Branch dropdown**: Hidden when 0 branches, static name when 1, dropdown when 2+. Branch = Property (used interchangeably).
+- **Country dropdown**: Shows flag + name of current country. Lists all operating countries. Switching country calls `User::switchCountry()` which resets branch to null.
+- **Notification bell**: Placeholder (icon only, no functionality yet)
+- **User menu**: Reuses Filament's `HasUserMenu` trait
+
+**Computed properties**: `$this->operatingCountries` (all operating countries), `$this->currentCountry` (active country model).
+
+### Custom Dashboard
+
+**`app/Filament/Pages/Dashboard.php`** extends `Filament\Pages\Dashboard`.
+
+**Conditional rendering via `getView()`:**
+- If setup incomplete for current country → renders `filament.pages.dashboard-checklist`
+- If complete → renders default Filament page view (with widgets)
+
+**Checklist view** (`resources/views/filament/pages/dashboard-checklist.blade.php`):
+- Header: "Platform Setup Checklist" + progress bar (X of 5 tasks completed)
+- 3-column grid of 5 cards (3 top row, 2 bottom row)
+- Each card: icon, title, description, CTA button (links to config page)
+- Completed cards: green checkmark state with "Completed" badge
 
 ### How to Add a New Wizard Step
 
