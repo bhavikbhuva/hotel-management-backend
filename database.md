@@ -80,6 +80,20 @@ Table country_setup_tasks {
   }
 }
 
+Table taxes {
+  id int [pk]
+  country_id int [ref: > countries.id]
+  property_type_id int [ref: > property_types.id]
+  name varchar
+  description text [null]
+  type varchar
+  value decimal(10,4)
+  status varchar [default: 'active']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════

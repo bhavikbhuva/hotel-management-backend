@@ -63,6 +63,12 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `resources/views/filament/pages/dashboard-checklist.blade.php` | Platform Setup Checklist view |
 | `resources/views/livewire/setup-wizard.blade.php` | Full custom Blade view for the setup wizard |
 | `resources/views/layouts/setup.blade.php` | Minimal HTML layout for the setup wizard (Vite + Livewire assets) |
+| `app/Filament/Pages/TaxManage.php` | Tax Management page — table + add/edit/delete modals |
+| `resources/views/filament/pages/tax-manage.blade.php` | Tax Management Blade view |
+| `app/Models/Tax.php` | Tax model — soft deletes, country/propertyType relations, forCountry scope |
+| `app/Services/TaxService.php` | Tax business logic — create, update, delete |
+| `app/Enums/TaxType.php` | Enum: `Percentage`, `Fixed` |
+| `app/Enums/TaxStatus.php` | Enum: `Active`, `Inactive` |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
 | `database/migrations/` | All migration files |
 | `.env` | Environment config (DB, app key, etc.) |
@@ -362,6 +368,30 @@ Layout: `[← back] [Branch dropdown] ............ [Country dropdown] [🔔] [Us
 - Full-height two-column flex layout
 - **Left sidebar** (224px fixed): logo placeholder → "Initial Setup" header → step list (each step has a circle indicator: blue filled = active, blue with checkmark = completed, gray border = future) → copyright footer
 - **Right content**: scrollable area with `p-10` padding → step-specific content → fixed footer bar with Back / Next buttons
+
+### Tax Management
+
+**Route:** `/taxes` — 3rd setup task in the dashboard checklist.
+
+**Page:** `TaxManage` uses `InteractsWithTable` trait on a Filament Page (not a Resource). Taxes are scoped to the admin's `current_country_id`.
+
+**Table columns:** Tax Name (with ID description), Description (limit 40), Type (badge: blue=Percentage, orange=Fixed), Value (formatted with % or currency symbol), Status (badge: green=Active, gray=Inactive).
+
+**Header action:** "+ Add New Tax" opens modal with: Tax Name, Description, Calculation Type (Percentage/Fixed with live select), Rate Value (dynamic suffix: % or currency symbol), Status (radio: Active/Inactive, default Active).
+
+**Table actions:** Edit (pencil icon, pre-filled modal) and Delete (trash icon, confirmation dialog with soft delete).
+
+**Filters:** Status (All/Active/Inactive). **Search:** By tax name. **Pagination:** 4 per page.
+
+**Service layer:** `TaxService` handles all business logic:
+- `createTax()` — auto-sets `property_type_id` to active property type, marks `SetupTask::Taxes` complete on first tax for a country
+- `updateTax()` — updates tax record
+- `deleteTax()` — soft deletes
+
+**Modal conventions (project-wide):**
+- Footer alignment: `Alignment::End` (right-aligned)
+- Button order: Cancel first, then Save (`order-first` on cancel action)
+- Delete confirmation: icon, heading, description, "Yes, Delete" danger button
 
 ### Auth Middleware Details
 
