@@ -48,7 +48,12 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Http/Middleware/EnsureSetupIsCompleted.php` | Redirects to `/setup` if setup not done |
 | `app/Http/Middleware/FilamentAuthenticate.php` | Skips auth during setup; delegates to Filament auth after |
 | `app/Models/Setting.php` | Key-value settings store with caching |
-| `app/Models/Country.php` | Country model — name, iso_code, currency info, is_active |
+| `app/Models/Country.php` | Country model — name, iso_code, currency info, ref_country_id link |
+| `app/Models/State.php` | State model — country relation, ref_state_id link, soft deletes |
+| `app/Models/City.php` | City model — country+state relations, ref_city_id link, soft deletes |
+| `app/Models/RefCountry.php` | Read-only reference country (from dr5hn SQL data) |
+| `app/Models/RefState.php` | Read-only reference state (from dr5hn SQL data) |
+| `app/Models/RefCity.php` | Read-only reference city (from dr5hn SQL data) |
 | `app/Models/OperatingCountry.php` | Pivot model — countries the business operates in |
 | `app/Models/PropertyType.php` | Property type model — is_active flag for selection |
 | `app/Enums/UserRole.php` | Enum: `Admin`, `Partner`, `Staff`, `Customer` |
@@ -69,6 +74,10 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Services/TaxService.php` | Tax business logic — create, update, delete |
 | `app/Enums/TaxType.php` | Enum: `Percentage`, `Fixed` |
 | `app/Enums/TaxStatus.php` | Enum: `Active`, `Inactive` |
+| `app/Console/Commands/ImportRefDataCommand.php` | Imports dr5hn SQL files into ref_* tables via mysql CLI pipe |
+| `app/Filament/Pages/CityManage.php` | City Management page — state/city selection per country |
+| `app/Services/CityService.php` | City business logic — add/remove cities, state-as-city fallback |
+| `resources/views/filament/pages/city-manage.blade.php` | City Management Blade view |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
 | `database/migrations/` | All migration files |
 | `.env` | Environment config (DB, app key, etc.) |
@@ -240,11 +249,32 @@ Why: Filament's Wizard component only renders steps in a horizontal top bar. The
 
 **`validateCurrentStep()`** — uses `match($this->currentStep)` to apply the correct Livewire validation rules per step. Validation errors surface via `@error('field')` in the Blade view.
 
+### Two-Tier Location Data Architecture
+
+The app uses a **two-tier table pattern** for location data (countries, states, cities):
+
+**Reference tables** (`ref_countries`, `ref_states`, `ref_cities`):
+- Read-only data pool with ~250 countries, 5000+ states, 150000+ cities
+- Sourced from [dr5hn/countries-states-cities-database](https://github.com/dr5hn/countries-states-cities-database)
+- SQL files stored at `database/sql/countries.sql`, `database/sql/states.sql`, `database/sql/cities.sql`
+- SQL files were modified: table names prefixed with `ref_`, FK constraints to non-existent regions/subregions tables removed
+- Imported via `php artisan app:import-ref-data` — uses mysql CLI pipe (NOT `file_get_contents` or `DB::unprepared` — cities.sql is ~111MB)
+- Import order: countries → states → cities (hardcoded in command)
+- Models (`RefCountry`, `RefState`, `RefCity`) use `$guarded = ['*']` — never written to by the app
+
+**Operational tables** (`countries`, `states`, `cities`):
+- Lean app-specific tables holding only what the business uses
+- Linked to ref tables via `ref_*_id` columns (nullable, unique, **no FK constraint** — ref tables exist outside migration lifecycle)
+- Managed by Laravel migrations with proper relationships and soft deletes (states, cities)
+
+**Why:** Replaced Google Places API with static SQL data to avoid API costs and external dependency.
+
 ### Countries & Operating Countries
 
-**`countries` table** — ~130 countries seeded via `CountrySeeder` (uses `updateOrCreate` on `iso_code` for idempotency).
+**`countries` table** — operational countries created during setup wizard Step 3 from RefCountry data.
 ```
-id, name, iso_code (char 2, unique), currency_symbol (nullable),
+id, ref_country_id (nullable, unique — links to ref_countries.id, no FK),
+name, iso_code (char 2, unique), currency_symbol (nullable),
 currency_code (char 3), currency_name, is_active (default true), timestamps
 ```
 
@@ -257,10 +287,41 @@ id, country_id (FK → countries, unique, cascadeOnDelete), timestamps
 The entire admin panel (cities, properties, branches) will be scoped by operating countries. A proper table enables Eloquent relationships, easy querying (`OperatingCountry::pluck('country_id')`), and foreign key constraints from future tables.
 
 **Models:**
-- `Country` — has `operatingCountry(): HasOne` relationship
+- `Country` — has `operatingCountry(): HasOne`, `states(): HasMany`, `cities(): HasMany`, `refCountry(): BelongsTo` relationships
 - `OperatingCountry` — has `country(): BelongsTo` relationship, `$fillable = ['country_id']`
 
 **Flag images:** `public/assets/flags/{iso_code}.svg` (274 SVG files, lowercase ISO 3166-1 alpha-2 codes)
+
+### States
+
+**`states` table** — operational states for countries the business uses.
+```
+id, ref_state_id (nullable, unique — links to ref_states.id, no FK),
+country_id (FK → countries, cascadeOnDelete), name,
+latitude (nullable), longitude (nullable), is_active (default true),
+timestamps, deleted_at (soft delete)
+```
+
+**Model:** `State` — `country(): BelongsTo`, `cities(): HasMany`, `refState(): BelongsTo`. Uses `SoftDeletes`.
+
+### Cities & City Management
+
+**`cities` table** — operational cities for states the business uses.
+```
+id, ref_city_id (nullable, unique — links to ref_cities.id, no FK),
+country_id (FK → countries, cascadeOnDelete),
+state_id (FK → states, cascadeOnDelete), name,
+latitude (nullable), longitude (nullable),
+status (default 'active'), timestamps, deleted_at (soft delete)
+```
+
+**Model:** `City` — `country(): BelongsTo`, `state(): BelongsTo`, `refCity(): BelongsTo`. Uses `SoftDeletes`.
+
+**Route:** `/cities` — 2nd setup task in the dashboard checklist.
+
+**Page:** `CityManage` — state/city selection scoped to admin's `current_country_id`.
+
+**State-as-city fallback:** For small countries/states with no city subdivisions (e.g., Seychelles), the city select offers the state itself with value `state:{ref_state_id}`. `CityService` handles this prefix pattern by creating a city record named after the state.
 
 ### Property Types
 
@@ -326,7 +387,7 @@ Layout: `[← back] [Branch dropdown] ............ [Country dropdown] [🔔] [Us
 - **Branch dropdown**: Hidden when 0 branches, static name when 1, dropdown when 2+. Branch = Property (used interchangeably).
 - **Country dropdown**: Shows flag + name of current country. Lists all operating countries. Switching country calls `User::switchCountry()` which resets branch to null.
 - **Notification bell**: Placeholder (icon only, no functionality yet)
-- **User menu**: Reuses Filament's `HasUserMenu` trait
+- **User menu**: Custom trigger (avatar + name + role) with Filament's `<x-filament::dropdown>` for content (profile, theme switcher, logout). Uses `HasUserMenu` trait. Menu items configured as `Action` objects in `AdminPanelProvider` (not deprecated `MenuItem`) to avoid `toAction()` override bugs.
 
 **Computed properties**: `$this->operatingCountries` (all operating countries), `$this->currentCountry` (active country model).
 

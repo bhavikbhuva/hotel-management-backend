@@ -11,21 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('states', function (Blueprint $table) {
             $table->id();
-            $table->unsignedMediumInteger('ref_city_id')->nullable()->unique();
+            $table->unsignedMediumInteger('ref_state_id')->nullable()->unique();
             $table->foreignId('country_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('state_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
-            $table->string('status')->default('active');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('country_id');
-            $table->index('state_id');
-            $table->index('status');
         });
     }
 
@@ -34,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('states');
     }
 };

@@ -9,6 +9,7 @@ use App\Models\Country;
 use App\Models\CountrySetupTask;
 use App\Models\OperatingCountry;
 use App\Models\PropertyType;
+use App\Models\RefCountry;
 use App\Models\Setting;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -55,6 +56,7 @@ class SetupWizard extends Component
 
     // ── Step 3: Countries ─────────────────────────────────────────────────────
 
+    /** @var array<int> Selected ref_countries IDs */
     public array $selectedCountries = [];
 
     public string $countrySearch = '';
@@ -98,14 +100,14 @@ class SetupWizard extends Component
         $this->currentStep = max(1, $this->currentStep - 1);
     }
 
-    public function toggleCountry(int $countryId): void
+    public function toggleCountry(int $refCountryId): void
     {
-        if (in_array($countryId, $this->selectedCountries)) {
+        if (in_array($refCountryId, $this->selectedCountries)) {
             $this->selectedCountries = array_values(
-                array_diff($this->selectedCountries, [$countryId])
+                array_diff($this->selectedCountries, [$refCountryId])
             );
         } else {
-            $this->selectedCountries[] = $countryId;
+            $this->selectedCountries[] = $refCountryId;
         }
     }
 
@@ -159,7 +161,7 @@ class SetupWizard extends Component
             ]),
             3 => $this->validate([
                 'selectedCountries' => ['required', 'array', 'min:1'],
-                'selectedCountries.*' => ['integer', 'exists:countries,id'],
+                'selectedCountries.*' => ['integer', 'exists:ref_countries,id'],
             ]),
             4 => $this->validate([
                 'selectedPropertyType' => ['required', 'exists:property_types,id'],
@@ -183,21 +185,40 @@ class SetupWizard extends Component
 
         Setting::set('system_mode', $this->systemMode);
 
+        // Create operational countries from selected ref_countries
+        $operatingCountryIds = [];
+        foreach ($this->selectedCountries as $refCountryId) {
+            $refCountry = RefCountry::findOrFail($refCountryId);
+
+            $country = Country::query()->updateOrCreate(
+                ['ref_country_id' => $refCountry->id],
+                [
+                    'name' => $refCountry->name,
+                    'iso_code' => strtolower($refCountry->iso2),
+                    'currency_symbol' => $refCountry->currency_symbol,
+                    'currency_code' => $refCountry->currency,
+                    'currency_name' => $refCountry->currency_name,
+                ],
+            );
+
+            $operatingCountryIds[] = $country->id;
+        }
+
         OperatingCountry::query()->delete();
         OperatingCountry::query()->insert(
             array_map(fn (int $id) => [
                 'country_id' => $id,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], $this->selectedCountries)
+            ], $operatingCountryIds)
         );
 
         PropertyType::query()->update(['is_active' => false]);
         PropertyType::query()->where('id', $this->selectedPropertyType)->update(['is_active' => true]);
 
-        $user->update(['current_country_id' => $this->selectedCountries[0]]);
+        $user->update(['current_country_id' => $operatingCountryIds[0]]);
 
-        CountrySetupTask::seedForCountries($this->selectedCountries);
+        CountrySetupTask::seedForCountries($operatingCountryIds);
 
         // Auto-mark admin_profile as complete (data already filled during wizard)
         CountrySetupTask::markComplete(SetupTask::AdminProfile);
@@ -213,8 +234,8 @@ class SetupWizard extends Component
     public function render(): \Illuminate\View\View
     {
         $countries = $this->currentStep === 3
-            ? Country::query()
-                ->where('is_active', true)
+            ? RefCountry::query()
+                ->where('flag', true)
                 ->when($this->countrySearch, fn ($q) => $q
                     ->where('name', 'like', "%{$this->countrySearch}%")
                     ->orWhere('currency_name', 'like', "%{$this->countrySearch}%"))

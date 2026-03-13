@@ -6,11 +6,12 @@ use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\EnsureSetupIsCompleted;
 use App\Http\Middleware\FilamentAuthenticate;
 use App\Livewire\Topbar;
+use Filament\Actions\Action;
 use Filament\Enums\GlobalSearchPosition;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -33,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)
+            ->maxContentWidth('full')
             ->passwordReset()
             ->colors([
                 'primary' => Color::Blue,
@@ -48,13 +50,18 @@ class AdminPanelProvider extends PanelProvider
                     ->icon(Heroicon::OutlinedMapPin),
             ])
             ->userMenuItems([
-                MenuItem::make()
+                Action::make('profile')
                     ->label('My Profile')
                     ->url('/admin-profile')
-                    ->icon(Heroicon::OutlinedUser),
-                'logout' => MenuItem::make()
+                    ->icon(Heroicon::OutlinedUser)
+                    ->sort(-1),
+                'logout' => Action::make('logout')
                     ->label('Log Out')
-                    ->color('danger'),
+                    ->color('danger')
+                    ->icon(Heroicon::ArrowLeftEndOnRectangle)
+                    ->url(fn (): string => Filament::getLogoutUrl())
+                    ->postToUrl()
+                    ->sort(PHP_INT_MAX),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

@@ -372,6 +372,24 @@ Do not generate tests for simple CRUD or Filament resources unless requested.
 # must follow
 I will give you exact details each time, you will never assume anything, and always ask me if there is a query anywhere. also dont just code it, give me detailed explaination of each thing everytime
 
+## Framework-First Rule (CRITICAL — NEVER VIOLATE)
+- ALWAYS use Filament/Livewire/Laravel built-in components before writing custom HTML, JS, or Blade.
+- NEVER replace a framework component with raw HTML/JS. If you need to customize, extend or wrap the existing component — do not rewrite it from scratch.
+- Before writing ANY UI element (form input, dropdown, modal, toggle, menu), search the framework docs (`search-docs`) to check if a built-in component exists. If it does, use it.
+- When customizing a framework component (e.g., custom topbar), you MUST preserve ALL features the original component provided (theme switcher, accessibility, dark mode support, etc.). List what the original provides before replacing it.
+- If a built-in component is missing a feature you need, ask the user before deciding to go custom.
+
+## No Assumptions Rule (CRITICAL — NEVER VIOLATE)
+- NEVER assume an approach, architecture decision, component choice, or implementation detail without asking the user first.
+- Before every implementation step, explain what you plan to do and why, then wait for confirmation.
+- If there are multiple ways to do something, present the options with trade-offs and let the user decide.
+- This includes: FK constraints, column types, component choices, file structure, migration strategies, and any decision that affects the codebase.
+
+## Memory & Documentation Rule
+- After completing any significant work (new architecture, new patterns, important decisions), save relevant memories immediately — do not wait to be asked.
+- Keep project memories, reference memories, and feedback memories up to date throughout the conversation.
+- If external resources, repos, or tools were used, save them as reference memories.
+
 ## Running Tests
 
 - Run the minimal number of tests, using an appropriate filter, before finalizing.

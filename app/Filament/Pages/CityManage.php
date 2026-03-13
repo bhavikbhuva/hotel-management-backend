@@ -4,15 +4,17 @@ namespace App\Filament\Pages;
 
 use App\Enums\CityStatus;
 use App\Models\City;
-use App\Models\Setting;
+use App\Models\RefCity;
+use App\Models\RefState;
 use App\Services\CityService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +23,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
 class CityManage extends Page implements HasTable
@@ -36,10 +39,6 @@ class CityManage extends Page implements HasTable
     protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.city-manage';
-
-    public ?string $selectedState = null;
-
-    public ?string $selectedGooglePlaceId = null;
 
     public static function getNavigationIcon(): string|\BackedEnum|\Illuminate\Contracts\Support\Htmlable|null
     {
@@ -71,24 +70,12 @@ class CityManage extends Page implements HasTable
                 ->modalSubmitActionLabel('Add City')
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
-                ->mountUsing(function (Schema $form): void {
-                    $this->selectedState = null;
-                    $this->selectedGooglePlaceId = null;
-
-                    $form->fill();
-                })
                 ->schema($this->getCityFormSchema())
                 ->action(function (array $data): void {
                     /** @var \App\Models\User $user */
                     $user = auth()->user();
 
-                    $data['state'] = $this->selectedState;
-                    $data['google_place_id'] = $this->selectedGooglePlaceId;
-
                     app(CityService::class)->createCity($data, $user->current_country_id);
-
-                    $this->selectedState = null;
-                    $this->selectedGooglePlaceId = null;
 
                     Notification::make()
                         ->title('City created successfully.')
@@ -112,7 +99,7 @@ class CityManage extends Page implements HasTable
                     ->label('City Name')
                     ->description(fn (City $record): string => strtoupper($record->country?->iso_code ?? ''))
                     ->searchable(),
-                TextColumn::make('state')
+                TextColumn::make('state.name')
                     ->label('State/Province')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('latitude')
@@ -161,13 +148,16 @@ class CityManage extends Page implements HasTable
                     ->modalFooterActionsAlignment(Alignment::End)
                     ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                     ->mountUsing(function (Schema $form, City $record): void {
-                        $this->selectedState = $record->state;
-                        $this->selectedGooglePlaceId = $record->google_place_id;
+                        $refStateId = $record->state?->ref_state_id;
+
+                        // State-as-city fallback: ref_city_id is null
+                        $refCityValue = $record->ref_city_id
+                            ? $record->ref_city_id
+                            : ($refStateId ? "state:{$refStateId}" : null);
 
                         $form->fill([
-                            'name' => $record->name,
-                            'latitude' => $record->latitude,
-                            'longitude' => $record->longitude,
+                            'ref_state_id' => $refStateId,
+                            'ref_city_id' => $refCityValue,
                             'status' => $record->status->value,
                         ]);
                     })
@@ -192,13 +182,7 @@ class CityManage extends Page implements HasTable
                             }
                         }
 
-                        $data['state'] = $this->selectedState;
-                        $data['google_place_id'] = $this->selectedGooglePlaceId;
-
-                        app(CityService::class)->updateCity($record, $data);
-
-                        $this->selectedState = null;
-                        $this->selectedGooglePlaceId = null;
+                        app(CityService::class)->updateCity($record, $data, $user->current_country_id);
 
                         Notification::make()
                             ->title('City updated successfully.')
@@ -213,7 +197,7 @@ class CityManage extends Page implements HasTable
     }
 
     /**
-     * @return array<int, \Filament\Forms\Components\Component>
+     * @return array<int, \Filament\Forms\Components\Component|\Filament\Schemas\Components\Component>
      */
     private function getCityFormSchema(bool $isEdit = false): array
     {
@@ -223,7 +207,7 @@ class CityManage extends Page implements HasTable
         $countryName = e($country->name);
         $isoCode = e($country->iso_code);
         $flagUrl = asset('assets/flags/'.strtolower($country->iso_code).'.svg');
-        $hasApiKey = (bool) Setting::get('google_places_api_key');
+        $refCountryId = $country->ref_country_id;
 
         $schema = [];
 
@@ -248,30 +232,6 @@ class CityManage extends Page implements HasTable
             '</div>'
         ));
 
-        if (! $hasApiKey) {
-            $schema[] = Text::make(new HtmlString(
-                '<div class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">'.
-                '<div class="flex items-start gap-3">'.
-                '<div class="flex-shrink-0">'.
-                '<svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">'.
-                '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />'.
-                '</svg>'.
-                '</div>'.
-                '<div>'.
-                '<p class="font-semibold text-gray-900 dark:text-white">Places API not configured.</p>'.
-                '<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Please add your Google Places API key in system settings before creating a city.</p>'.
-                '<button type="button" class="mt-2 inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white opacity-75 cursor-not-allowed" disabled>'.
-                'Configure API'.
-                '<svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">'.
-                '<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />'.
-                '</svg>'.
-                '</button>'.
-                '</div>'.
-                '</div>'.
-                '</div>'
-            ));
-        }
-
         if ($isEdit) {
             $schema[] = Text::make(new HtmlString(
                 '<div class="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">'.
@@ -282,29 +242,89 @@ class CityManage extends Page implements HasTable
             ));
         }
 
-        $schema[] = TextInput::make('name')
-            ->label('City Name')
-            ->placeholder('e.g, New Delhi')
+        $schema[] = Select::make('ref_state_id')
+            ->label('State / Province')
+            ->options(fn (): Collection => RefState::query()
+                ->where('country_id', $refCountryId)
+                ->orderBy('name')
+                ->pluck('name', 'id'))
+            ->searchable()
             ->required()
-            ->maxLength(255)
-            ->disabled(! $hasApiKey)
-            ->dehydrated()
-            ->extraInputAttributes(['data-field' => 'city-name']);
+            ->live()
+            ->afterStateUpdated(fn (Select $component) => $component
+                ->getContainer()
+                ->getComponent('citySelectGrid')
+                ->getChildSchema()
+                ->fill());
+
+        $schema[] = Grid::make(1)
+            ->schema(fn (Get $get): array => [
+                Select::make('ref_city_id')
+                    ->label('City')
+                    ->options(function () use ($get): Collection {
+                        $stateId = $get('ref_state_id');
+                        if (! $stateId) {
+                            return collect();
+                        }
+
+                        $cities = RefCity::query()
+                            ->where('state_id', $stateId)
+                            ->orderBy('name')
+                            ->pluck('name', 'id');
+
+                        // Fallback: if no cities exist for this state, offer the state itself
+                        if ($cities->isEmpty()) {
+                            $refState = RefState::find($stateId);
+                            if ($refState) {
+                                return collect(["state:{$stateId}" => "{$refState->name} (state)"]);
+                            }
+                        }
+
+                        return $cities;
+                    })
+                    ->searchable()
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set): void {
+                        if (! $state) {
+                            $set('latitude', null);
+                            $set('longitude', null);
+
+                            return;
+                        }
+
+                        // Handle state-as-city fallback
+                        if (str_starts_with((string) $state, 'state:')) {
+                            $refState = RefState::find((int) str_replace('state:', '', $state));
+                            if ($refState) {
+                                $set('latitude', $refState->latitude);
+                                $set('longitude', $refState->longitude);
+                            }
+
+                            return;
+                        }
+
+                        $refCity = RefCity::find($state);
+                        if ($refCity) {
+                            $set('latitude', $refCity->latitude);
+                            $set('longitude', $refCity->longitude);
+                        }
+                    }),
+            ])
+            ->key('citySelectGrid');
 
         $schema[] = Grid::make(2)
             ->schema([
-                TextInput::make('latitude')
+                \Filament\Forms\Components\TextInput::make('latitude')
                     ->label('Latitude')
-                    ->required()
                     ->numeric()
-                    ->default(0)
-                    ->extraInputAttributes(['data-field' => 'latitude']),
-                TextInput::make('longitude')
+                    ->disabled()
+                    ->dehydrated(),
+                \Filament\Forms\Components\TextInput::make('longitude')
                     ->label('Longitude')
-                    ->required()
                     ->numeric()
-                    ->default(0)
-                    ->extraInputAttributes(['data-field' => 'longitude']),
+                    ->disabled()
+                    ->dehydrated(),
             ]);
 
         $schema[] = Radio::make('status')

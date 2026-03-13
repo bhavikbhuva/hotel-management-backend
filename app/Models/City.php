@@ -13,12 +13,12 @@ class City extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'ref_city_id',
         'country_id',
+        'state_id',
         'name',
-        'state',
         'latitude',
         'longitude',
-        'google_place_id',
         'status',
     ];
 
@@ -26,14 +26,24 @@ class City extends Model
     {
         return [
             'status' => CityStatus::class,
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
+            'latitude' => 'decimal:8',
+            'longitude' => 'decimal:8',
         ];
+    }
+
+    public function refCity(): BelongsTo
+    {
+        return $this->belongsTo(RefCity::class, 'ref_city_id');
     }
 
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function state(): BelongsTo
+    {
+        return $this->belongsTo(State::class);
     }
 
     public function scopeForCountry(Builder $query, int $countryId): Builder

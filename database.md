@@ -1,6 +1,107 @@
 
 // ══════════════════════════════════════════════════════════════
+// REFERENCE TABLES — read-only data pool from dr5hn SQL files
+// Imported via: php artisan app:import-ref-data (mysql CLI pipe)
+// NOT managed by Laravel migrations
+// ══════════════════════════════════════════════════════════════
+
+Table ref_countries {
+  id mediumint unsigned [pk, auto]
+  name varchar(100)
+  iso3 char(3) [null]
+  numeric_code char(3) [null]
+  iso2 char(2) [null]
+  phonecode varchar [null]
+  capital varchar [null]
+  currency varchar [null]
+  currency_name varchar [null]
+  currency_symbol varchar [null]
+  tld varchar [null]
+  native varchar [null]
+  population bigint unsigned [null]
+  gdp bigint unsigned [null]
+  region varchar [null]
+  region_id mediumint unsigned [null]
+  subregion varchar [null]
+  subregion_id mediumint unsigned [null]
+  nationality varchar [null]
+  area_sq_km double [null]
+  postal_code_format varchar [null]
+  postal_code_regex varchar [null]
+  timezones text [null]
+  translations text [null]
+  latitude decimal(10,8) [null]
+  longitude decimal(11,8) [null]
+  emoji varchar [null]
+  emojiU varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  flag boolean [default: 1]
+  wikiDataId varchar [null]
+
+  indexes {
+    (region_id) [name: 'country_continent']
+    (subregion_id) [name: 'country_subregion']
+  }
+}
+
+Table ref_states {
+  id mediumint unsigned [pk, auto]
+  name varchar
+  country_id mediumint unsigned [ref: > ref_countries.id]
+  country_code char(2)
+  fips_code varchar [null]
+  iso2 varchar [null]
+  iso3166_2 varchar(10) [null]
+  type varchar(191) [null]
+  level int [null]
+  parent_id int unsigned [null]
+  native varchar [null]
+  latitude decimal(10,8) [null]
+  longitude decimal(11,8) [null]
+  timezone varchar [null]
+  translations text [null]
+  created_at timestamp [null]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  flag boolean [default: 1]
+  wikiDataId varchar [null]
+  population varchar [null]
+
+  indexes {
+    (country_id) [name: 'country_region']
+  }
+}
+
+Table ref_cities {
+  id mediumint unsigned [pk, auto]
+  name varchar
+  state_id mediumint unsigned [ref: > ref_states.id]
+  state_code varchar
+  country_id mediumint unsigned [ref: > ref_countries.id]
+  country_code char(2)
+  type varchar(191) [null]
+  level int [null]
+  parent_id int unsigned [null]
+  latitude decimal(10,8)
+  longitude decimal(11,8)
+  native varchar [null]
+  population bigint unsigned [null]
+  timezone varchar [null]
+  translations text [null]
+  created_at timestamp [default: '2014-01-01 12:01:01']
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  flag boolean [default: 1]
+  wikiDataId varchar [null]
+
+  indexes {
+    (state_id) [name: 'ref_cities_test_ibfk_1']
+    (country_id) [name: 'ref_cities_test_ibfk_2']
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 // MIGRATED — these tables exist in the database right now
+// Managed by Laravel migrations
 // ══════════════════════════════════════════════════════════════
 
 Table settings {
@@ -12,7 +113,8 @@ Table settings {
 }
 
 Table countries {
-  id int [pk]
+  id bigint unsigned [pk, auto]
+  ref_country_id mediumint unsigned [null, unique, note: 'Links to ref_countries.id, no FK constraint']
   name varchar
   iso_code char(2) [unique]
   currency_symbol varchar [null]
@@ -24,15 +126,46 @@ Table countries {
 }
 
 Table operating_countries {
-  id int [pk]
-  country_id int [unique, ref: > countries.id]
+  id bigint unsigned [pk, auto]
+  country_id bigint unsigned [unique, ref: > countries.id, note: 'ON DELETE CASCADE']
   created_at datetime
   updated_at datetime
 }
 
+Table states {
+  id bigint unsigned [pk, auto]
+  ref_state_id mediumint unsigned [null, unique, note: 'Links to ref_states.id, no FK constraint']
+  country_id bigint unsigned [ref: > countries.id, note: 'ON DELETE CASCADE']
+  name varchar
+  latitude decimal(10,8) [null]
+  longitude decimal(11,8) [null]
+  is_active boolean [default: true]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
+Table cities {
+  id bigint unsigned [pk, auto]
+  ref_city_id mediumint unsigned [null, unique, note: 'Links to ref_cities.id, no FK constraint']
+  country_id bigint unsigned [ref: > countries.id, note: 'ON DELETE CASCADE']
+  state_id bigint unsigned [ref: > states.id, note: 'ON DELETE CASCADE']
+  name varchar
+  latitude decimal(10,8) [null]
+  longitude decimal(11,8) [null]
+  status varchar [default: 'active']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+
+  indexes {
+    (status) [name: 'cities_status_index']
+  }
+}
+
 Table users {
-  id int [pk]
-  branch_id int [null, ref: > branches.id]
+  id bigint unsigned [pk, auto]
+  branch_id bigint unsigned [null, ref: > branches.id]
   name varchar
   avatar varchar [null]
   email varchar [unique]
@@ -42,11 +175,11 @@ Table users {
   status varchar [default: 'active']
   locale varchar [default: 'en']
   auth_provider varchar [null]
-  country_id int [null, ref: > countries.id]
-  current_country_id int [null, ref: > countries.id]
-  current_branch_id int [null, ref: > branches.id]
+  country_id bigint unsigned [null, ref: > countries.id]
+  current_country_id bigint unsigned [null, ref: > countries.id]
+  current_branch_id bigint unsigned [null, ref: > branches.id]
   referral_code varchar [null, unique]
-  referred_by int [null, ref: > users.id]
+  referred_by bigint unsigned [null, ref: > users.id]
   email_verified_at datetime [null]
   phone_verified_at datetime [null]
   last_login_at datetime [null]
@@ -57,7 +190,7 @@ Table users {
 }
 
 Table property_types {
-  id int [pk]
+  id bigint unsigned [pk, auto]
   name varchar [unique]
   description text [null]
   icon varchar [null]
@@ -68,8 +201,8 @@ Table property_types {
 }
 
 Table country_setup_tasks {
-  id int [pk]
-  country_id int [null, ref: > countries.id]
+  id bigint unsigned [pk, auto]
+  country_id bigint unsigned [null, ref: > countries.id]
   task_key varchar
   completed_at datetime [null]
   created_at datetime
@@ -81,9 +214,9 @@ Table country_setup_tasks {
 }
 
 Table taxes {
-  id int [pk]
-  country_id int [ref: > countries.id]
-  property_type_id int [ref: > property_types.id]
+  id bigint unsigned [pk, auto]
+  country_id bigint unsigned [ref: > countries.id]
+  property_type_id bigint unsigned [ref: > property_types.id]
   name varchar
   description text [null]
   type varchar
@@ -97,13 +230,6 @@ Table taxes {
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════
-
-Table cities {
-  id int [pk]
-  country_id int [ref: > countries.id]
-  name varchar
-  created_at datetime
-}
 
 Table currencies {
   id int [pk]

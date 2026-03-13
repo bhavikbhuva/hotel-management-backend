@@ -118,72 +118,60 @@
             @if (filament()->auth()->check())
                 @php
                     $user = filament()->auth()->user();
-                    $userMenuItems = filament()->getUserMenuItems();
+                    $menuItems = $this->getUserMenuItems();
+
+                    $itemsBeforeAndAfterThemeSwitcher = collect($menuItems)
+                        ->groupBy(fn (\Filament\Actions\Action $item): bool => $item->getSort() < 0, preserveKeys: true)
+                        ->all();
+                    $itemsBeforeThemeSwitcher = $itemsBeforeAndAfterThemeSwitcher[true] ?? collect();
+                    $itemsAfterThemeSwitcher = $itemsBeforeAndAfterThemeSwitcher[false] ?? collect();
                 @endphp
-                <div x-data="{ open: false }" class="relative">
-                    <button
-                        type="button"
-                        x-on:click="open = !open"
-                        class="flex items-center gap-x-3 rounded-lg px-2 py-1.5 text-start transition hover:bg-gray-50 dark:hover:bg-white/5"
-                    >
-                        <x-filament-panels::avatar.user :user="$user" />
 
-                        <div class="hidden lg:block">
-                            <p class="text-sm font-semibold leading-tight text-gray-900 dark:text-white">
-                                {{ filament()->getUserName($user) }}
-                            </p>
-                            <p class="text-xs uppercase leading-tight text-gray-500 dark:text-gray-400">
-                                {{ $user->role->label() }}
-                            </p>
-                        </div>
+                <x-filament::dropdown placement="bottom-end" teleport class="fi-user-menu">
+                    <x-slot name="trigger">
+                        <button
+                            type="button"
+                            class="flex items-center gap-x-3 rounded-lg px-2 py-1.5 text-start transition hover:bg-gray-50 dark:hover:bg-white/5"
+                        >
+                            <x-filament-panels::avatar.user :user="$user" />
 
-                        <svg class="hidden h-4 w-4 text-gray-400 lg:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
+                            <div class="hidden lg:block">
+                                <p class="text-sm font-semibold leading-tight text-gray-900 dark:text-white">
+                                    {{ filament()->getUserName($user) }}
+                                </p>
+                                <p class="text-xs uppercase leading-tight text-gray-500 dark:text-gray-400">
+                                    {{ $user->role->label() }}
+                                </p>
+                            </div>
 
-                    <div
-                        x-show="open"
-                        x-on:click.outside="open = false"
-                        x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="opacity-0 scale-95"
-                        x-transition:enter-end="opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-75"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-95"
-                        class="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        @foreach ($userMenuItems as $key => $item)
-                            @if ($key === 'profile')
-                                @continue
-                            @elseif ($key === 'logout')
-                                <div class="border-t border-gray-200 my-1 dark:border-gray-700"></div>
-                                <form action="{{ filament()->getLogoutUrl() }}" method="post" class="px-1">
-                                    @csrf
-                                    <button
-                                        type="submit"
-                                        class="flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                                    >
-                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-                                        </svg>
-                                        {{ $item->getLabel() }}
-                                    </button>
-                                </form>
-                            @else
-                                <a
-                                    href="{{ $item->getUrl() }}"
-                                    class="flex w-full items-center gap-x-2 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
-                                >
-                                    @if ($item->getIcon())
-                                        <x-filament::icon :icon="$item->getIcon()" class="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                    @endif
-                                    {{ $item->getLabel() }}
-                                </a>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
+                            <svg class="hidden h-4 w-4 text-gray-400 lg:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+                    </x-slot>
+
+                    @if ($itemsBeforeThemeSwitcher->isNotEmpty())
+                        <x-filament::dropdown.list>
+                            @foreach ($itemsBeforeThemeSwitcher as $key => $item)
+                                {{ $item }}
+                            @endforeach
+                        </x-filament::dropdown.list>
+                    @endif
+
+                    @if (filament()->hasDarkMode() && (! filament()->hasDarkModeForced()))
+                        <x-filament::dropdown.list>
+                            <x-filament-panels::theme-switcher />
+                        </x-filament::dropdown.list>
+                    @endif
+
+                    @if ($itemsAfterThemeSwitcher->isNotEmpty())
+                        <x-filament::dropdown.list>
+                            @foreach ($itemsAfterThemeSwitcher as $key => $item)
+                                {{ $item }}
+                            @endforeach
+                        </x-filament::dropdown.list>
+                    @endif
+                </x-filament::dropdown>
             @endif
         </div>
 

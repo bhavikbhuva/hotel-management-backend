@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('countries', function (Blueprint $table) {
             $table->id();
+            $table->unsignedMediumInteger('ref_country_id')->nullable()->unique();
             $table->string('name');
             $table->char('iso_code', 2)->unique();
             $table->string('currency_symbol')->nullable();

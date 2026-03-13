@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use App\Models\RefCountry;
 use Illuminate\Database\Seeder;
 
 class CountrySeeder extends Seeder
@@ -160,7 +161,16 @@ class CountrySeeder extends Seeder
         // Remove duplicates by iso_code before inserting
         $unique = collect($countries)->unique('iso_code')->values()->toArray();
 
+        // Build a lookup map: uppercase ISO2 → ref_countries.id
+        $refCountryMap = RefCountry::query()
+            ->whereNotNull('iso2')
+            ->pluck('id', 'iso2')
+            ->mapWithKeys(fn ($id, $iso2) => [strtolower($iso2) => $id])
+            ->toArray();
+
         foreach ($unique as $country) {
+            $country['ref_country_id'] = $refCountryMap[$country['iso_code']] ?? null;
+
             Country::query()->updateOrCreate(
                 ['iso_code' => $country['iso_code']],
                 $country
