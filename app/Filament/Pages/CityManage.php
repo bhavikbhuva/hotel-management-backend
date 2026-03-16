@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\CityStatus;
+use App\Filament\Actions\TableExportAction;
 use App\Models\City;
 use App\Models\RefCity;
 use App\Models\RefState;
@@ -161,7 +162,7 @@ class CityManage extends Page implements HasTable
                             'status' => $record->status->value,
                         ]);
                     })
-                    ->schema($this->getCityFormSchema(isEdit: true))
+                    ->schema(fn (City $record): array => $this->getCityFormSchema(isEdit: true, excludeRefCityId: $record->ref_city_id, excludeCityId: $record->id))
                     ->action(function (City $record, array $data): void {
                         /** @var \App\Models\User $user */
                         $user = auth()->user();
@@ -190,6 +191,18 @@ class CityManage extends Page implements HasTable
                             ->send();
                     }),
             ])
+            ->toolbarActions([
+                TableExportAction::make()
+                    ->filename('cities')
+                    ->exports([
+                        'name' => 'City Name',
+                        'state.name' => 'State/Province',
+                        'latitude' => 'Latitude',
+                        'longitude' => 'Longitude',
+                        'status' => ['label' => 'Status', 'formatter' => fn (City $record): string => $record->status->label()],
+                    ])
+                    ->toActionGroup(),
+            ])
             ->emptyStateHeading('No Cities Added Yet')
             ->emptyStateDescription('Cities are used to help customers search and discover properties on the website. Add cities to improve location-based search results and user experience.')
             ->emptyStateIcon('heroicon-o-map-pin')
@@ -199,7 +212,7 @@ class CityManage extends Page implements HasTable
     /**
      * @return array<int, \Filament\Forms\Components\Component|\Filament\Schemas\Components\Component>
      */
-    private function getCityFormSchema(bool $isEdit = false): array
+    private function getCityFormSchema(bool $isEdit = false, ?int $excludeRefCityId = null, ?int $excludeCityId = null): array
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -208,6 +221,23 @@ class CityManage extends Page implements HasTable
         $isoCode = e($country->iso_code);
         $flagUrl = asset('assets/flags/'.strtolower($country->iso_code).'.svg');
         $refCountryId = $country->ref_country_id;
+
+        // Get already-added ref_city_ids to exclude from the dropdown
+        $addedRefCityIds = City::query()
+            ->forCountry($user->current_country_id)
+            ->whereNotNull('ref_city_id')
+            ->when($excludeRefCityId, fn ($q) => $q->where('ref_city_id', '!=', $excludeRefCityId))
+            ->pluck('ref_city_id')
+            ->all();
+
+        // Get ref_state_ids that already have a state-as-city entry (ref_city_id is null)
+        $addedStateAsCityRefStateIds = City::query()
+            ->where('cities.country_id', $user->current_country_id)
+            ->whereNull('cities.ref_city_id')
+            ->when($excludeCityId, fn ($q) => $q->where('cities.id', '!=', $excludeCityId))
+            ->join('states', 'cities.state_id', '=', 'states.id')
+            ->pluck('states.ref_state_id')
+            ->all();
 
         $schema = [];
 
@@ -261,7 +291,7 @@ class CityManage extends Page implements HasTable
             ->schema(fn (Get $get): array => [
                 Select::make('ref_city_id')
                     ->label('City')
-                    ->options(function () use ($get): Collection {
+                    ->options(function () use ($get, $addedRefCityIds, $addedStateAsCityRefStateIds): Collection {
                         $stateId = $get('ref_state_id');
                         if (! $stateId) {
                             return collect();
@@ -269,11 +299,17 @@ class CityManage extends Page implements HasTable
 
                         $cities = RefCity::query()
                             ->where('state_id', $stateId)
+                            ->when($addedRefCityIds, fn ($q) => $q->whereNotIn('id', $addedRefCityIds))
                             ->orderBy('name')
                             ->pluck('name', 'id');
 
-                        // Fallback: if no cities exist for this state, offer the state itself
-                        if ($cities->isEmpty()) {
+                        // Fallback: only offer the state itself when the state has NO
+                        // ref_cities at all (not when they're all filtered out as already added)
+                        if ($cities->isEmpty() && ! RefCity::query()->where('state_id', $stateId)->exists()) {
+                            if (in_array((int) $stateId, $addedStateAsCityRefStateIds, true)) {
+                                return collect();
+                            }
+
                             $refState = RefState::find($stateId);
                             if ($refState) {
                                 return collect(["state:{$stateId}" => "{$refState->name} (state)"]);

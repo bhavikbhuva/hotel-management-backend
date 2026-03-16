@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->colors([
                 'primary' => Color::Blue,
+                'dark' => '#000000',
             ])
             ->brandName(config('app.name'))
             ->sidebarWidth('18rem')

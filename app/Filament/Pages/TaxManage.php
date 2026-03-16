@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Enums\TaxStatus;
 use App\Enums\TaxType;
+use App\Filament\Actions\TableExportAction;
 use App\Models\Tax;
 use App\Services\TaxService;
 use Filament\Actions\Action;
@@ -197,6 +198,26 @@ class TaxManage extends Page implements HasTable
                                 ->send();
                         }),
                 ]),
+            ])
+            ->toolbarActions([
+                TableExportAction::make()
+                    ->filename('taxes')
+                    ->exports([
+                        'name' => 'Tax Name',
+                        'description' => 'Description',
+                        'type' => ['label' => 'Type', 'formatter' => fn (Tax $record): string => $record->type->label()],
+                        'value' => ['label' => 'Value', 'formatter' => function (Tax $record): string {
+                            if ($record->type === TaxType::Percentage) {
+                                return rtrim(rtrim(number_format((float) $record->value, 4), '0'), '.').'%';
+                            }
+
+                            $symbol = $record->country?->currency_symbol ?? '$';
+
+                            return $symbol.rtrim(rtrim(number_format((float) $record->value, 4), '0'), '.');
+                        }],
+                        'status' => ['label' => 'Status', 'formatter' => fn (Tax $record): string => $record->status->label()],
+                    ])
+                    ->toActionGroup(),
             ])
             ->defaultPaginationPageOption(4);
     }

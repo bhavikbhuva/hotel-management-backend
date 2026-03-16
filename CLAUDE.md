@@ -241,6 +241,40 @@ app(PropertyService::class)->createProperty($data);
 
 - Do not place database logic inside Filament actions.
 
+## Table Export Convention (CRITICAL — FOLLOW FOR ALL TABLES)
+
+Every table MUST include an export button using the reusable `TableExportAction`.
+
+- Package: `openspout/openspout` (lightweight, streaming CSV/XLSX writer)
+- Service: `App\Services\ExportService` — handles file generation (never duplicate this logic)
+- Action: `App\Filament\Actions\TableExportAction` — reusable Filament action for any table
+- Supports: CSV and Excel (XLSX) via user-selected dropdown in a modal
+- No queue required — files download instantly (safe for up to ~5,000 rows)
+
+### How to add export to a new table:
+
+```php
+use App\Filament\Actions\TableExportAction;
+
+->toolbarActions([
+    TableExportAction::make()
+        ->filename('my-table-name')
+        ->exports([
+            'attribute' => 'Header Label',
+            'relation.attribute' => 'Related Header',
+            'computed' => ['label' => 'Custom', 'formatter' => fn ($record) => $record->someMethod()],
+        ])
+        ->toActionGroup(),
+])
+```
+
+### Rules:
+- ALWAYS add `TableExportAction` to `toolbarActions()` on every new table
+- Use simple string mapping for direct attributes, array with `formatter` for computed values
+- Enum/status columns MUST use a formatter to export the human-readable label, not the raw value
+- Filename should match the table's entity name (e.g., 'cities', 'taxes', 'bookings')
+- If switching to queue-based export (Filament ExportAction) later, see memory for migration guide
+
 === project structure rules ===
 
 # Application Folder Structure
@@ -255,6 +289,9 @@ app/
   Http/
     Controllers/
     Requests/
+  Filament/
+    Actions/
+    Pages/
   Policies/
 
 Do not create new top-level directories without approval.
