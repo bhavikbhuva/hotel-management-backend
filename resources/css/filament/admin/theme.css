@@ -114,3 +114,25 @@
 .fi-pagination .fi-pagination-next-btn {
     order: 4;
 }
+
+/*
+ * Record action icon buttons: rounded square with subtle background
+ */
+td .fi-ta-actions .fi-icon-btn {
+    background-color: rgb(243 244 246) !important;
+    border-radius: 0.625rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    margin-right: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+:is(.dark td .fi-ta-actions .fi-icon-btn) {
+    background-color: rgb(55 65 81) !important;
+}
+
+:is(.dark td .fi-ta-actions .fi-icon-btn) {
+    background-color: rgb(55 65 81);
+}

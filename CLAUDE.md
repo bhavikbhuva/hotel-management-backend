@@ -241,6 +241,80 @@ app(PropertyService::class)->createProperty($data);
 
 - Do not place database logic inside Filament actions.
 
+## Table Action Buttons Convention (CRITICAL — FOLLOW FOR ALL TABLES)
+
+Table record actions must use individual icon buttons — NEVER use `ActionGroup` (three-dot dropdown) for record actions.
+
+```php
+->recordActions([
+    Action::make('edit')
+        ->iconButton()
+        ->icon('heroicon-o-pencil')
+        ->color('gray'),
+    Action::make('delete')
+        ->iconButton()
+        ->icon('heroicon-o-trash')
+        ->color('gray')
+        ->requiresConfirmation(),
+])
+```
+
+### Rules:
+- Always use `->iconButton()` with `->color('gray')` for record actions
+- Icon buttons get gray background + rounded corners via CSS in `theme.css`
+- Never wrap record actions in `ActionGroup::make([])`
+- Standard actions: view (heroicon-o-eye), edit (heroicon-o-pencil), delete (heroicon-o-trash)
+- CSS for icon button styling is in `resources/css/filament/admin/theme.css`
+
+## Dual Save Actions Convention (Save Draft / Publish)
+
+For pages with draft/publish workflow, override header actions and remove form footer actions:
+
+```php
+protected function getHeaderActions(): array
+{
+    return [
+        Action::make('saveDraft')->label('Save Draft')->color('gray')->action(fn () => ...),
+        Action::make('publish')->label('Publish')->action(fn () => ...),
+    ];
+}
+
+protected function getFormActions(): array
+{
+    return []; // Remove default footer buttons
+}
+```
+
+### Rules:
+- On Create pages, add `->formId('form')` to header actions
+- Always validate form, check business rules (e.g., category draft status), then call service
+- Redirect to index after save: `$this->redirect(Resource::getUrl('index'))`
+
+## Live Preview Convention
+
+For live form previews (e.g., blog card preview), use `Filament\Schemas\Components\View` with a Blade component:
+
+```php
+View::make('filament.schemas.components.blog-preview')
+```
+
+### Rules:
+- Use `$get('field_name')` in Blade to access reactive form values
+- Fields feeding the preview MUST have `->live(onBlur: true)` for text or `->live()` for selects/uploads
+- For file upload preview: use Alpine.js with document-level `FilePond:addfile` event listener and `URL.createObjectURL()` for instant client-side preview
+- Preview Blade component goes in `resources/views/filament/schemas/components/`
+
+## Tab-Based List Pages
+
+For pages with multiple tabs (e.g., Blogs + Categories), use a custom Blade view with tab switcher:
+
+### Rules:
+- Use `#[Url(as: 'tab')]` property for query string binding
+- Active tab styling: inline `background-color: #2563eb` (blue) with white text, container `background-color: #dbeafe` (light blue)
+- Tailwind classes like `bg-primary-600` may not compile — use inline styles for dynamic tab colors
+- Tab content conditionally rendered in Blade using `$this->activeTab`
+- Remove breadcrumbs with: `public function getBreadcrumbs(): array { return []; }`
+
 ## Table Export Convention (CRITICAL — FOLLOW FOR ALL TABLES)
 
 Every table MUST include an export button using the reusable `TableExportAction`.
@@ -329,6 +403,8 @@ properties
 branches
 room_types
 bookings
+blog_categories
+blogs
 
 === enum rules ===
 

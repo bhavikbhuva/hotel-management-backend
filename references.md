@@ -78,6 +78,24 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Filament/Pages/CityManage.php` | City Management page — state/city selection per country |
 | `app/Services/CityService.php` | City business logic — add/remove cities, state-as-city fallback |
 | `resources/views/filament/pages/city-manage.blade.php` | City Management Blade view |
+| `app/Filament/Resources/Blogs/BlogResource.php` | Blog resource — model, slug, navigation config, delegates to form/table/pages |
+| `app/Filament/Resources/Blogs/Schemas/BlogForm.php` | Blog form schema — 3-column layout with live preview |
+| `app/Filament/Resources/Blogs/Tables/BlogsTable.php` | Blog table — columns, filters, icon button actions, export |
+| `app/Filament/Resources/Blogs/Pages/ListBlogs.php` | Blog list page — tabbed view (Blogs + Categories) |
+| `app/Filament/Resources/Blogs/Pages/CreateBlog.php` | Blog create page — dual Save Draft / Publish actions |
+| `app/Filament/Resources/Blogs/Pages/EditBlog.php` | Blog edit page — dual Save Draft / Publish + Delete actions |
+| `app/Livewire/BlogCategoryTable.php` | Blog category table — standalone Livewire TableComponent with CRUD modals |
+| `app/Models/Blog.php` | Blog model — SoftDeletes, category/author relations, published scope |
+| `app/Models/BlogCategory.php` | Blog category model — SoftDeletes, blogs relation |
+| `app/Enums/BlogStatus.php` | Enum: Draft, Published |
+| `app/Enums/BlogCategoryStatus.php` | Enum: Draft, Published |
+| `app/Services/BlogService.php` | Blog business logic — create, update, delete |
+| `app/Services/BlogCategoryService.php` | Blog category business logic — create, update, delete |
+| `resources/views/filament/pages/blogs/list-blogs.blade.php` | Blog list Blade — tab switcher with inline blue styles |
+| `resources/views/filament/pages/blogs/view-blog.blade.php` | Blog view modal content — cover image, meta, content, SEO |
+| `resources/views/filament/schemas/components/blog-preview.blade.php` | Live preview card — Alpine.js + FilePond events |
+| `resources/views/livewire/blog-category-table.blade.php` | Category table Blade — empty state with modal trigger |
+| `resources/css/filament/admin/theme.css` | Custom CSS — icon button styling for table record actions |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
 | `database/migrations/` | All migration files |
 | `.env` | Environment config (DB, app key, etc.) |
@@ -465,5 +483,116 @@ Two custom middleware control access:
 **`FilamentAuthenticate`** (replaces default Filament `Authenticate` in `->authMiddleware()`):
 - If `setup_completed !== 'true'` → skip auth entirely (lets unauthenticated users access setup)
 - If done → delegate to Filament's standard auth, which calls `canAccessPanel()`
+
+### Blog Module (Content Management)
+
+**Navigation:** "Content Management" group in sidebar. Route: `/blogs`.
+
+**Architecture:** Filament Resource (`BlogResource`) with separate Create/Edit pages (not modals). Blog categories use a standalone Livewire `TableComponent` embedded in a tab.
+
+#### Blog Categories
+
+**`blog_categories` table:**
+```
+id, name, slug (unique), status (default 'draft'), timestamps, deleted_at (soft delete)
+```
+
+**Model:** `BlogCategory` — `blogs(): HasMany`, uses `SoftDeletes`. Status cast to `BlogCategoryStatus` enum.
+
+**UI:** Standalone `BlogCategoryTable` Livewire component (extends `TableComponent`). Rendered on the "Categories" tab of the blog list page.
+
+**CRUD:** All via modals (create, edit, delete). Individual icon button actions (edit + delete), no dropdown.
+
+**Edge cases:**
+- Cannot set category to draft if it has published blogs
+- Cannot delete category if it has blogs associated
+- Slug auto-generates from name with collision handling (-2, -3, etc.)
+- Slug uniqueness validated with custom error message
+
+#### Blogs
+
+**`blogs` table:**
+```
+id, blog_category_id (FK → blog_categories), created_by (nullable FK → users),
+title, slug (unique), short_description (text), content (longText),
+cover_image, meta_title, meta_description (text), keywords (text),
+status (default 'draft'), published_at (nullable), timestamps, deleted_at (soft delete)
+```
+
+**Model:** `Blog` — `category(): BelongsTo BlogCategory`, `author(): BelongsTo User`, `published` scope. Status cast to `BlogStatus` enum.
+
+**Service layer:** `BlogService` handles:
+- `createBlog()` — auto-sets `created_by` via `auth()->id()`, `published_at` on publish
+- `updateBlog()` — smart `published_at` handling (set on first publish, clear on draft, preserve if already published)
+- `deleteBlog()` — soft delete
+
+#### Blog List Page (Tabbed)
+
+**Page:** `ListBlogs` — custom Blade view with two tabs:
+- **All Blogs** tab — renders `BlogsTable` (Filament Resource table)
+- **Categories** tab — renders `@livewire('blog-category-table')`
+
+**Tab state:** `#[Url(as: 'tab')]` property for query string binding. Default: `blogs`.
+
+**Tab styling:** Active tab uses inline `background-color: #2563eb` (blue) with white text, container `background-color: #dbeafe` (light blue). Tailwind dynamic classes don't compile — inline styles required.
+
+**Breadcrumbs:** Removed via `getBreadcrumbs()` returning empty array.
+
+#### Blog Create/Edit Pages
+
+**Dual actions pattern:** Header has "Save Draft" (gray) + "Publish" (primary) buttons. Footer actions removed (`getFormActions()` returns `[]`).
+
+**On Create:** Both actions use `->formId('form')` for form binding.
+
+**On Edit:** Also includes `DeleteAction` in header.
+
+**Business rules before save:**
+- Validates form via `$this->form->validate()`
+- Blocks publishing if selected category is still draft
+- Redirects to index after save
+
+#### Blog Form Schema (3-Column Layout)
+
+**Column 1-2 (span 2):** Blog Configuration section:
+- Title — `live(onBlur: true)`, auto-generates slug with collision handling
+- Slug — unique validation, custom error message
+- Category — searchable select, `live(onBlur: true)`, "Manage Categories" suffix action
+- Short Description — textarea, `live(onBlur: true)`, max 500 chars
+- Content — RichEditor with full toolbar (bold, italic, underline, strike, link, textColor, highlight, h1-h3, lead, small, alignments, blockquote, codeBlock, lists, horizontalRule, table, grid, details, attachFiles, floating table toolbar)
+- Cover Image — FileUpload, public disk, max 2MB, JPG/PNG
+
+**Column 3 (span 1):** Live Website Preview section:
+- `View::make('filament.schemas.components.blog-preview')`
+- Uses `$get()` for reactive field values
+- Alpine.js `x-data` with `previewUrl` reactive property
+- FilePond native `addfile` event at document level → `URL.createObjectURL()` for instant image preview
+- FilePond `removefile` event clears back to stored image URL
+
+**Below (span 2):** SEO Configuration section:
+- Meta Title, Meta Description, Keywords (comma separated)
+
+#### Blog Table
+
+**Columns:** SR.NO, Image (ImageColumn, public disk), Blog Title, Blog Category (via relationship), Created Date, Status (badge).
+
+**Filters:** Status select, Category relationship.
+
+**Record actions:** Individual icon buttons (view modal, edit page link, delete with confirmation) — all `->iconButton()->color('gray')`.
+
+**Toolbar:** Export + Create New Blog button.
+
+#### Icon Button Styling (CSS)
+
+Custom CSS in `resources/css/filament/admin/theme.css`:
+```css
+td .fi-ta-actions .fi-icon-btn {
+    background-color: rgb(243 244 246) !important;
+    border-radius: 0.625rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    margin-right: 4px !important;
+}
+```
+Dark mode variant uses `rgb(55 65 81)`. Requires `npm run build` after changes.
 
 ---

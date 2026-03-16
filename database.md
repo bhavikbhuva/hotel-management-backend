@@ -227,6 +227,45 @@ Table taxes {
   deleted_at datetime [null]
 }
 
+Table blog_categories {
+  id bigint unsigned [pk, auto]
+  name varchar
+  slug varchar [unique]
+  status varchar [default: 'draft', note: 'Enum: draft, published']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+
+  indexes {
+    (status) [name: 'blog_categories_status_index']
+  }
+}
+
+Table blogs {
+  id bigint unsigned [pk, auto]
+  blog_category_id bigint unsigned [ref: > blog_categories.id, note: 'ON DELETE CASCADE']
+  created_by bigint unsigned [null, ref: > users.id, note: 'ON DELETE SET NULL']
+  title varchar
+  slug varchar [unique]
+  short_description text
+  content longtext
+  cover_image varchar
+  meta_title varchar
+  meta_description text
+  keywords text
+  status varchar [default: 'draft', note: 'Enum: draft, published']
+  published_at datetime [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+
+  indexes {
+    (status) [name: 'blogs_status_index']
+    (blog_category_id) [name: 'blogs_blog_category_id_foreign']
+    (created_by) [name: 'blogs_created_by_foreign']
+  }
+}
+
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════
