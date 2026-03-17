@@ -288,6 +288,16 @@ Table banners {
   }
 }
 
+Table how_it_works_steps {
+  id bigint unsigned [pk, auto]
+  title varchar
+  description varchar [note: 'Max 90 chars']
+  sort_order int unsigned [default: 0, note: 'Auto-assigned, re-sequenced on delete']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════

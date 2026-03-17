@@ -49,6 +49,8 @@ class AdminProfile extends Page
         return Action::make('editProfile')
             ->label('Edit Details')
             ->modalHeading('Edit Profile')
+            ->stickyModalHeader()
+            ->stickyModalFooter()
             ->modalWidth('md')
             ->modalSubmitActionLabel('Save Details')
             ->modalFooterActionsAlignment(Alignment::End)

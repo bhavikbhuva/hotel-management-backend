@@ -67,6 +67,8 @@ class BlogsTable
                     ->icon('heroicon-o-eye')
                     ->color('gray')
                     ->modalHeading(fn (Blog $record): string => $record->title)
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
                     ->modalWidth('5xl')
                     ->modalContent(fn (Blog $record) => view('filament.pages.blogs.view-blog', ['blog' => $record]))
                     ->modalSubmitAction(false)

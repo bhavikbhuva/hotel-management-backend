@@ -136,3 +136,44 @@ td .fi-ta-actions .fi-icon-btn {
 :is(.dark td .fi-ta-actions .fi-icon-btn) {
     background-color: rgb(55 65 81);
 }
+
+/*
+ * How It Works step cards: show edit/delete icons on hover
+ */
+.step-card .step-card-actions {
+    display: none;
+}
+
+.step-card:hover .step-card-actions {
+    display: flex;
+}
+
+/*
+ * Modal: scrollbar only on the content area (between sticky header/footer),
+ * hidden on the outer window to preserve rounded corners.
+ */
+.fi-modal-window {
+    overflow: hidden !important;
+}
+
+.fi-modal-window > .fi-modal-content {
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+}
+
+.fi-modal-window > .fi-modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.fi-modal-window > .fi-modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fi-modal-window > .fi-modal-content::-webkit-scrollbar-thumb {
+    background-color: rgb(209 213 219);
+    border-radius: 3px;
+}
+
+:is(.dark .fi-modal-window > .fi-modal-content::-webkit-scrollbar-thumb) {
+    background-color: rgb(75 85 99);
+}

@@ -266,6 +266,24 @@ Table record actions must use individual icon buttons — NEVER use `ActionGroup
 - Standard actions: view (heroicon-o-eye), edit (heroicon-o-pencil), delete (heroicon-o-trash)
 - CSS for icon button styling is in `resources/css/filament/admin/theme.css`
 
+## Sticky Modal Header & Footer Convention (CRITICAL — FOLLOW FOR ALL MODALS)
+
+All form/CRUD modals MUST have sticky header and footer so users can always see the title and submit/cancel buttons without scrolling.
+
+```php
+Action::make('create')
+    ->modalHeading('Create Item')
+    ->stickyModalHeader()
+    ->stickyModalFooter()
+    ->schema([...])
+```
+
+### Rules:
+- ALWAYS add `->stickyModalHeader()` and `->stickyModalFooter()` to every modal action that has form fields
+- This applies to: create modals, edit modals, view modals, profile modals — any modal with content
+- Delete confirmation modals (small, no form) don't need this but it won't hurt
+- The modal body scrolls independently while header (title) and footer (buttons) stay fixed
+
 ## Dual Save Actions Convention (Save Draft / Publish)
 
 For pages with draft/publish workflow, override header actions and remove form footer actions:
@@ -406,6 +424,7 @@ bookings
 blog_categories
 blogs
 banners
+how_it_works_steps
 
 === enum rules ===
 

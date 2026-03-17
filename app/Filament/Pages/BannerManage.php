@@ -12,6 +12,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -73,6 +74,8 @@ class BannerManage extends Page implements HasTable
             Action::make('addNewBanner')
                 ->label('+ Add New Banner')
                 ->modalHeading('Add New Banner')
+                ->stickyModalHeader()
+                ->stickyModalFooter()
                 ->modalWidth('lg')
                 ->modalSubmitActionLabel('Add Banner')
                 ->modalFooterActionsAlignment(Alignment::End)
@@ -103,15 +106,19 @@ class BannerManage extends Page implements HasTable
             )
             ->columns([
                 ImageColumn::make('image')
-                    ->label('BANNER')
+                    ->label('')
                     ->disk('public')
                     ->square()
-                    ->size(60),
+                    ->size(60)
+                    ->grow(false),
                 TextColumn::make('title')
                     ->label('BANNER')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(3),
                 TextColumn::make('start_date')
                     ->label('BANNER DATES')
+                    ->wrap()
                     ->formatStateUsing(function (Banner $record): HtmlString {
                         if (! $record->start_date && ! $record->end_date) {
                             return new HtmlString('<span class="text-gray-500">Always Active</span>');
@@ -136,7 +143,8 @@ class BannerManage extends Page implements HasTable
                     }),
                 TextColumn::make('target_url')
                     ->label('TARGET LINK')
-                    ->limit(40)
+                    ->limit(35)
+                    ->wrap()
                     ->url(fn (Banner $record): string => $record->target_url)
                     ->openUrlInNewTab()
                     ->color('primary'),
@@ -163,6 +171,8 @@ class BannerManage extends Page implements HasTable
                     ->icon('heroicon-o-pencil')
                     ->color('gray')
                     ->modalHeading('Edit Banner')
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
                     ->modalWidth('lg')
                     ->modalSubmitActionLabel('Save Banner')
                     ->modalFooterActionsAlignment(Alignment::End)
@@ -253,11 +263,12 @@ class BannerManage extends Page implements HasTable
                 ->afterOrEqual('start_date')
                 ->minDate($isCreate ? now()->toDateString() : null)
                 ->columnSpan(1),
-            TextInput::make('title')
+            Textarea::make('title')
                 ->label('Banner Title')
                 ->placeholder('e.g, Best Hotel')
                 ->required()
                 ->maxLength(255)
+                ->rows(2)
                 ->columnSpanFull(),
             FileUpload::make('image')
                 ->label('Upload Banner')

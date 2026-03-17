@@ -101,6 +101,10 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `app/Enums/BannerStatus.php` | Enum: Active, Inactive |
 | `app/Services/BannerService.php` | Banner business logic — create, update, delete |
 | `resources/views/filament/pages/banner-manage.blade.php` | Banner Management Blade view |
+| `app/Filament/Pages/HelpSupportManage.php` | Help & Support page — tabbed (How It Works + FAQs) |
+| `app/Models/HowItWorksStep.php` | HowItWorksStep model — simple, no relationships, global |
+| `app/Services/HowItWorksService.php` | How It Works business logic — max 4 steps, auto sort_order |
+| `resources/views/filament/pages/help-support-manage.blade.php` | Help & Support Blade view — tabs + card layout |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
 | `database/migrations/` | All migration files |
 | `.env` | Environment config (DB, app key, etc.) |
@@ -638,5 +642,33 @@ timestamps, deleted_at (soft delete)
 **Table columns:** Banner image + title, Banner Dates (formatted with scheduling logic), Target Link (clickable, truncated), Status (badge), Actions (edit + delete icon buttons).
 
 **Future fields (in DB, not in UI):** `is_global` (global vs country-specific), `platform` (app/web/both), `sort_order` (display ordering).
+
+### Help & Support FAQs Module (Content Management)
+
+**Navigation:** Content Management > Help & Support FAQs. Route: `/help-support`.
+
+**Architecture:** Filament Page with tabbed layout (like Blogs). Two tabs: "How It Works" + "Topics & FAQs". URL-bound tab via `#[Url(as: 'tab')]`. Dynamic heading/subheading per tab.
+
+#### How It Works Steps
+
+**`how_it_works_steps` table:**
+```
+id, title, description (max 90 chars), sort_order (auto-assigned, re-sequenced on delete),
+timestamps, deleted_at (soft delete)
+```
+
+**Model:** `HowItWorksStep` — simple model, no relationships, no status. Global content (not country-scoped).
+
+**Service:** `HowItWorksService` — `createStep()` auto-assigns sort_order, `updateStep()`, `deleteStep()` with re-sequencing. `canAddStep()` enforces max 4 limit. `MAX_STEPS = 4` constant.
+
+**UI:** Card-based layout (not a table). 4-column responsive grid. Each card shows step number badge (01-04), title, description. Edit/delete icon buttons appear on card hover (CSS `group-hover:opacity-100`).
+
+**Modal fields:** Note (red warning about 4-step limit), Title (required), Description (textarea, max 90 chars).
+
+**"+ Add Steps" button:** Hidden when 4 steps exist. Double-validated (UI + backend).
+
+#### Topics & FAQs (Planned)
+
+Empty state placeholder ready. Implementation pending.
 
 ---
