@@ -148,6 +148,64 @@ td .fi-ta-actions .fi-icon-btn {
     display: flex;
 }
 
+/*
+ * Facility cards: show edit/delete icons on hover
+ */
+/*
+ * Facility category header: subtle background
+ */
+.facility-category-header {
+    background-color: rgb(249 250 251);
+}
+
+:is(.dark .facility-category-header) {
+    background-color: rgb(17 24 39);
+}
+
+/*
+ * Facility category header: bordered square icon buttons
+ */
+.facility-category-actions .fi-icon-btn {
+    background-color: rgb(255 255 255) !important;
+    border: 1px solid rgb(229 231 235) !important;
+    border-radius: 0.625rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-left: 4px !important;
+}
+
+:is(.dark .facility-category-actions .fi-icon-btn) {
+    background-color: rgb(31 41 55) !important;
+    border-color: rgb(75 85 99) !important;
+}
+
+.facility-card .facility-card-actions {
+    display: none;
+}
+
+.facility-card:hover .facility-card-actions {
+    display: flex;
+}
+
+.facility-card-actions .fi-icon-btn {
+    background-color: rgb(255 255 255) !important;
+    border: 1px solid rgb(229 231 235) !important;
+    border-radius: 0.5rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-left: 4px !important;
+}
+
+:is(.dark .facility-card-actions .fi-icon-btn) {
+    background-color: rgb(31 41 55) !important;
+    border-color: rgb(75 85 99) !important;
+}
 
 /*
  * Modal: scrollbar only on the content area (between sticky header/footer),
@@ -157,20 +215,20 @@ td .fi-ta-actions .fi-icon-btn {
     overflow: hidden !important;
 }
 
-.fi-modal-window > .fi-modal-content {
+.fi-modal-window>.fi-modal-content {
     overflow-y: auto !important;
     scrollbar-width: thin;
 }
 
-.fi-modal-window > .fi-modal-content::-webkit-scrollbar {
+.fi-modal-window>.fi-modal-content::-webkit-scrollbar {
     width: 6px;
 }
 
-.fi-modal-window > .fi-modal-content::-webkit-scrollbar-track {
+.fi-modal-window>.fi-modal-content::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.fi-modal-window > .fi-modal-content::-webkit-scrollbar-thumb {
+.fi-modal-window>.fi-modal-content::-webkit-scrollbar-thumb {
     background-color: rgb(209 213 219);
     border-radius: 3px;
 }
