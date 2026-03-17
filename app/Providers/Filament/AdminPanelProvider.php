@@ -47,8 +47,12 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchFieldKeyBindingSuffix()
             ->topbarLivewireComponent(Topbar::class)
             ->navigationGroups([
+                NavigationGroup::make('Property Management')
+                    ->icon(Heroicon::OutlinedBuildingOffice2),
                 NavigationGroup::make('Content Management')
                     ->icon(Heroicon::OutlinedDocumentText),
+                NavigationGroup::make('Marketing')
+                    ->icon(Heroicon::OutlinedMegaphone),
                 NavigationGroup::make('Location & Policies')
                     ->icon(Heroicon::OutlinedMapPin),
             ])
