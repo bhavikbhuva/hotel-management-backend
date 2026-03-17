@@ -298,6 +298,28 @@ Table how_it_works_steps {
   deleted_at datetime [null]
 }
 
+Table faq_topics {
+  id bigint unsigned [pk, auto]
+  title varchar
+  slug varchar [unique]
+  description text
+  sort_order int unsigned [default: 0, note: 'Auto-assigned, re-sequenced on delete']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
+Table faqs {
+  id bigint unsigned [pk, auto]
+  faq_topic_id bigint unsigned [ref: > faq_topics.id, note: 'ON DELETE CASCADE']
+  question text
+  answer text
+  sort_order int unsigned [default: 0, note: 'Auto-assigned per topic, re-sequenced on delete']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════

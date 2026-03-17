@@ -2,7 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Faq;
+use App\Models\FaqTopic;
 use App\Models\HowItWorksStep;
+use App\Services\FaqService;
+use App\Services\FaqTopicService;
 use App\Services\HowItWorksService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
@@ -14,6 +18,7 @@ use Filament\Support\Enums\Alignment;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 
 class HelpSupportManage extends Page
@@ -122,10 +127,14 @@ class HelpSupportManage extends Page
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getStepFormSchema())
-            ->fillForm(fn (array $arguments): array => [
-                'title' => HowItWorksStep::find($arguments['step'])?->title,
-                'description' => HowItWorksStep::find($arguments['step'])?->description,
-            ])
+            ->fillForm(function (array $arguments): array {
+                $step = HowItWorksStep::find($arguments['step']);
+
+                return [
+                    'title' => $step?->title,
+                    'description' => $step?->description,
+                ];
+            })
             ->action(function (array $data, array $arguments): void {
                 $step = HowItWorksStep::find($arguments['step']);
 
@@ -181,6 +190,224 @@ class HelpSupportManage extends Page
         return HowItWorksStep::query()->exists();
     }
 
+    // ──────────────────────────────────────────────
+    // Topic Actions
+    // ──────────────────────────────────────────────
+
+    public function addTopicAction(): Action
+    {
+        return Action::make('addTopic')
+            ->label('+ Add Topic')
+            ->modalHeading('Add New Topic')
+            ->stickyModalHeader()
+            ->stickyModalFooter()
+            ->modalWidth('lg')
+            ->modalSubmitActionLabel('Add Topic')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->schema($this->getTopicFormSchema())
+            ->action(function (array $data): void {
+                app(FaqTopicService::class)->createTopic($data);
+
+                Notification::make()
+                    ->title('Topic added successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function editTopicAction(): Action
+    {
+        return Action::make('editTopic')
+            ->iconButton()
+            ->icon('heroicon-o-pencil')
+            ->color('gray')
+            ->modalHeading('Edit Topic')
+            ->stickyModalHeader()
+            ->stickyModalFooter()
+            ->modalWidth('lg')
+            ->modalSubmitActionLabel('Save Topic')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->schema($this->getTopicFormSchema(isCreate: false))
+            ->fillForm(function (array $arguments): array {
+                $topic = FaqTopic::find($arguments['topic']);
+
+                return [
+                    'title' => $topic?->title,
+                    'slug' => $topic?->slug,
+                    'description' => $topic?->description,
+                ];
+            })
+            ->action(function (array $data, array $arguments): void {
+                $topic = FaqTopic::find($arguments['topic']);
+
+                if (! $topic) {
+                    return;
+                }
+
+                app(FaqTopicService::class)->updateTopic($topic, $data);
+
+                Notification::make()
+                    ->title('Topic updated successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function deleteTopicAction(): Action
+    {
+        return Action::make('deleteTopic')
+            ->iconButton()
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalIcon('heroicon-o-trash')
+            ->modalHeading('Delete Topic?')
+            ->modalDescription('Are you sure you want to delete this topic? All FAQs under this topic will also be deleted.')
+            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->action(function (array $arguments): void {
+                $topic = FaqTopic::find($arguments['topic']);
+
+                if (! $topic) {
+                    return;
+                }
+
+                app(FaqTopicService::class)->deleteTopic($topic);
+
+                Notification::make()
+                    ->title('Topic deleted successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    // ──────────────────────────────────────────────
+    // FAQ Actions
+    // ──────────────────────────────────────────────
+
+    public function addFaqAction(): Action
+    {
+        return Action::make('addFaq')
+            ->link()
+            ->icon('heroicon-o-plus')
+            ->color('primary')
+            ->label('Add FAQ')
+            ->modalHeading('Add New FAQ')
+            ->stickyModalHeader()
+            ->stickyModalFooter()
+            ->modalWidth('lg')
+            ->modalSubmitActionLabel('Add FAQ')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->schema(fn (array $arguments): array => $this->getFaqFormSchema($arguments['topic'] ?? null))
+            ->action(function (array $data, array $arguments): void {
+                $topicId = $arguments['topic'] ?? null;
+
+                if (! $topicId) {
+                    return;
+                }
+
+                app(FaqService::class)->createFaq($topicId, $data);
+
+                Notification::make()
+                    ->title('FAQ added successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function editFaqAction(): Action
+    {
+        return Action::make('editFaq')
+            ->iconButton()
+            ->icon('heroicon-o-pencil')
+            ->color('gray')
+            ->modalHeading('Edit FAQ')
+            ->stickyModalHeader()
+            ->stickyModalFooter()
+            ->modalWidth('lg')
+            ->modalSubmitActionLabel('Save FAQ')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->schema(function (array $arguments): array {
+                $faq = Faq::with('topic')->find($arguments['faq']);
+
+                return $this->getFaqFormSchema($faq?->faq_topic_id);
+            })
+            ->fillForm(function (array $arguments): array {
+                $faq = Faq::find($arguments['faq']);
+
+                return [
+                    'question' => $faq?->question,
+                    'answer' => $faq?->answer,
+                ];
+            })
+            ->action(function (array $data, array $arguments): void {
+                $faq = Faq::find($arguments['faq']);
+
+                if (! $faq) {
+                    return;
+                }
+
+                app(FaqService::class)->updateFaq($faq, $data);
+
+                Notification::make()
+                    ->title('FAQ updated successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function deleteFaqAction(): Action
+    {
+        return Action::make('deleteFaq')
+            ->iconButton()
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalIcon('heroicon-o-trash')
+            ->modalHeading('Delete FAQ?')
+            ->modalDescription('Are you sure you want to delete this FAQ?')
+            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalFooterActionsAlignment(Alignment::End)
+            ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
+            ->action(function (array $arguments): void {
+                $faq = Faq::find($arguments['faq']);
+
+                if (! $faq) {
+                    return;
+                }
+
+                app(FaqService::class)->deleteFaq($faq);
+
+                Notification::make()
+                    ->title('FAQ deleted successfully.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    // ──────────────────────────────────────────────
+    // Data Methods
+    // ──────────────────────────────────────────────
+
+    public function getTopics(): Collection
+    {
+        return FaqTopic::query()
+            ->withCount('faqs')
+            ->with(['faqs' => fn ($query) => $query->orderBy('sort_order')])
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    public function getHasTopics(): bool
+    {
+        return FaqTopic::query()->exists();
+    }
+
     /**
      * @return array<int, \Filament\Forms\Components\Component>
      */
@@ -208,6 +435,70 @@ class HelpSupportManage extends Page
                 ->live(onBlur: false, debounce: 300)
                 ->helperText(fn ($state): string => 'Character Limit: '.strlen($state ?? '').' / 90')
                 ->rows(3),
+        ];
+    }
+
+    /**
+     * @return array<int, \Filament\Forms\Components\Component>
+     */
+    private function getTopicFormSchema(bool $isCreate = true): array
+    {
+        return [
+            TextInput::make('title')
+                ->label('Topic Title')
+                ->placeholder('e.g, Booking & Reservations')
+                ->required()
+                ->maxLength(255)
+                ->live(onBlur: true)
+                ->afterStateUpdated(function (string $state, callable $set) use ($isCreate): void {
+                    if ($isCreate) {
+                        $set('slug', Str::slug($state));
+                    }
+                }),
+            TextInput::make('slug')
+                ->label('Slug')
+                ->placeholder('auto-generated-from-title')
+                ->required($isCreate)
+                ->maxLength(255)
+                ->disabled(! $isCreate)
+                ->helperText($isCreate
+                    ? 'Auto-generated from title. You can edit it manually.'
+                    : 'Slug cannot be changed after creation.'),
+            Textarea::make('description')
+                ->label('Description')
+                ->placeholder('Brief description of this topic...')
+                ->required()
+                ->maxLength(500)
+                ->live(onBlur: false, debounce: 300)
+                ->helperText(fn ($state): string => 'Character Limit: '.strlen($state ?? '').' / 500')
+                ->rows(3),
+        ];
+    }
+
+    /**
+     * @return array<int, \Filament\Forms\Components\Component>
+     */
+    private function getFaqFormSchema(?int $topicId): array
+    {
+        $topicName = $topicId ? FaqTopic::find($topicId)?->title : 'Unknown Topic';
+
+        return [
+            Placeholder::make('topic_name')
+                ->label('Topic')
+                ->content($topicName),
+            TextInput::make('question')
+                ->label('Question')
+                ->placeholder('e.g, How do I cancel my booking?')
+                ->required()
+                ->maxLength(500),
+            Textarea::make('answer')
+                ->label('Answer')
+                ->placeholder('Write a clear and helpful answer...')
+                ->required()
+                ->maxLength(2000)
+                ->live(onBlur: false, debounce: 300)
+                ->helperText(fn ($state): string => 'Character Limit: '.strlen($state ?? '').' / 2000')
+                ->rows(5),
         ];
     }
 }

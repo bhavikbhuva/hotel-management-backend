@@ -148,6 +148,7 @@ td .fi-ta-actions .fi-icon-btn {
     display: flex;
 }
 
+
 /*
  * Modal: scrollbar only on the content area (between sticky header/footer),
  * hidden on the outer window to preserve rounded corners.

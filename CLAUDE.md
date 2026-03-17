@@ -425,6 +425,8 @@ blog_categories
 blogs
 banners
 how_it_works_steps
+faq_topics
+faqs
 
 === enum rules ===
 
