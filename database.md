@@ -266,6 +266,28 @@ Table blogs {
   }
 }
 
+Table banners {
+  id bigint unsigned [pk, auto]
+  country_id bigint unsigned [null, ref: > countries.id, note: 'ON DELETE CASCADE, nullable for future global banners']
+  is_global boolean [default: false, note: 'Future: true = visible across all countries']
+  platform varchar [default: 'both', note: 'Future: app, web, both']
+  title varchar
+  image varchar
+  target_url varchar
+  start_date date [null, note: 'Optional scheduling start']
+  end_date date [null, note: 'Optional scheduling end']
+  status varchar [default: 'active', note: 'Enum: active, inactive']
+  sort_order int unsigned [default: 0, note: 'Future: display ordering']
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+
+  indexes {
+    (status) [name: 'banners_status_index']
+    (is_global) [name: 'banners_is_global_index']
+  }
+}
+
 // ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════

@@ -96,6 +96,11 @@ Created `config/permission.php` and a migration for roles/permissions/pivot tabl
 | `resources/views/filament/schemas/components/blog-preview.blade.php` | Live preview card — Alpine.js + FilePond events |
 | `resources/views/livewire/blog-category-table.blade.php` | Category table Blade — empty state with modal trigger |
 | `resources/css/filament/admin/theme.css` | Custom CSS — icon button styling for table record actions |
+| `app/Filament/Pages/BannerManage.php` | Banner Management page — table + modal CRUD, country-scoped |
+| `app/Models/Banner.php` | Banner model — SoftDeletes, country relation, forCountry scope |
+| `app/Enums/BannerStatus.php` | Enum: Active, Inactive |
+| `app/Services/BannerService.php` | Banner business logic — create, update, delete |
+| `resources/views/filament/pages/banner-manage.blade.php` | Banner Management Blade view |
 | `routes/web.php` | Registers `/setup` route pointing to `SetupWizard::class` |
 | `database/migrations/` | All migration files |
 | `.env` | Environment config (DB, app key, etc.) |
@@ -594,5 +599,44 @@ td .fi-ta-actions .fi-icon-btn {
 }
 ```
 Dark mode variant uses `rgb(55 65 81)`. Requires `npm run build` after changes.
+
+### Banner Module (Marketing)
+
+**Navigation:** Marketing > Banner & Advertisement. Route: `/banners`.
+
+**Architecture:** Filament Page with `InteractsWithTable` (like TaxManage). Modal-based CRUD, country-scoped.
+
+#### Banners
+
+**`banners` table:**
+```
+id, country_id (nullable FK → countries), is_global (boolean, default false — future),
+platform (varchar, default 'both' — future), title, image, target_url,
+start_date (date, nullable), end_date (date, nullable),
+status (default 'active'), sort_order (int, default 0 — future),
+timestamps, deleted_at (soft delete)
+```
+
+**Model:** `Banner` — `country(): BelongsTo`, `forCountry` scope, uses `SoftDeletes`. Status cast to `BannerStatus` enum.
+
+**Service:** `BannerService` — `createBanner()` auto-sets `country_id` from auth user's current_country, `updateBanner()`, `deleteBanner()` (soft).
+
+**Scheduling logic:**
+- No dates → banner displays immediately if active
+- Start date only → visible from start date until manually deactivated
+- Start + end date → visible only within date range
+- Table shows "Scheduled" label when start date is in the future
+
+**Create/Edit modal fields:**
+- Selected Country (read-only Placeholder with flag + name + ISO)
+- Start Date / End Date (optional DatePickers, side by side)
+- Banner Title (required)
+- Upload Banner (FileUpload, public disk, max 2MB, 1872×750, JPG/PNG)
+- External Target Link (required, URL validated)
+- Status (Radio: Active/Inactive, inline, default Active)
+
+**Table columns:** Banner image + title, Banner Dates (formatted with scheduling logic), Target Link (clickable, truncated), Status (badge), Actions (edit + delete icon buttons).
+
+**Future fields (in DB, not in UI):** `is_global` (global vs country-specific), `platform` (app/web/both), `sort_order` (display ordering).
 
 ---

@@ -405,6 +405,7 @@ room_types
 bookings
 blog_categories
 blogs
+banners
 
 === enum rules ===
 
