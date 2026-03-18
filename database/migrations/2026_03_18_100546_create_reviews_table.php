@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('booking_id')->unique();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('property_id')->nullable();
-            $table->string('dummy_room_type')->nullable();
             $table->decimal('rating', 2, 1);
             $table->text('review');
             $table->string('status')->default('pending');

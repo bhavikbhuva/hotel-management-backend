@@ -344,7 +344,6 @@ Table reviews {
   booking_id bigint unsigned [unique]
   user_id bigint unsigned
   property_id bigint unsigned [null]
-  dummy_room_type varchar [null]
   rating decimal(2,1)
   review text
   status varchar [default: 'pending', note: 'enum: pending, approved, hidden']

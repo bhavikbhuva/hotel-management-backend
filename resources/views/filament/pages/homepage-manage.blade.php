@@ -479,52 +479,51 @@
                             }
                         }">
                             
-                            @if($this->selectedReviewsModels->isNotEmpty())
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    @foreach($this->selectedReviewsModels as $review)
-                                        <div class="relative flex flex-col justify-between rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800">
-                                            <div class="flex items-start justify-between">
-                                                <div class="flex items-center gap-3">
-                                                    @if($review->user?->avatar)
-                                                        <img src="{{ url($review->user->avatar) }}" class="h-10 w-10 rounded-full object-cover">
-                                                    @else
-                                                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100/50 text-blue-600 font-bold dark:bg-blue-900/50 dark:text-blue-400">
-                                                            {{ substr($review->user?->name ?? 'U', 0, 1) }}
-                                                        </div>
-                                                    @endif
-                                                    <div>
-                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $review->user?->name }}</p>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $review->dummy_room_type ?? 'Stay' }}</p>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                @foreach($this->selectedReviewsModels as $review)
+                                    <div class="relative flex flex-col justify-between rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex items-center gap-3">
+                                                @if($review->user?->avatar)
+                                                    <img src="{{ url($review->user->avatar) }}" class="h-10 w-10 rounded-full object-cover">
+                                                @else
+                                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100/50 text-blue-600 font-bold dark:bg-blue-900/50 dark:text-blue-400">
+                                                        {{ substr($review->user?->name ?? 'U', 0, 1) }}
                                                     </div>
-                                                </div>
-                                                
-                                                <div class="flex items-center gap-3">
-                                                    <div class="flex items-center gap-1">
-                                                        <x-heroicon-s-star class="h-4 w-4 text-amber-500"/>
-                                                        <span class="text-sm font-medium text-gray-900 dark:text-white">{{ number_format($review->rating, 1) }}</span>
-                                                    </div>
-                                                    <button type="button" @click="removeReview({{ $review->id }})" class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition hover:bg-gray-100 hover:text-red-500 dark:border-gray-600 dark:hover:bg-gray-700">
-                                                        <x-heroicon-o-trash class="h-4 w-4"/>
-                                                    </button>
+                                                @endif
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $review->user?->name }}</p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $review->user?->name ? 'Guest' : 'Anonymous' }}</p>
                                                 </div>
                                             </div>
                                             
-                                            <p class="mt-4 text-sm text-gray-600 line-clamp-3 dark:text-gray-300">
-                                                {{ $review->review }}
-                                            </p>
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex items-center gap-1">
+                                                    <x-heroicon-s-star class="h-4 w-4 text-amber-500"/>
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ number_format($review->rating, 1) }}</span>
+                                                </div>
+                                                <button type="button" @click="removeReview({{ $review->id }})" class="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition hover:bg-gray-100 hover:text-red-500 dark:border-gray-600 dark:hover:bg-gray-700">
+                                                    <x-heroicon-o-trash class="h-4 w-4"/>
+                                                </button>
+                                            </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                            @endif
+                                        
+                                        <p class="mt-4 text-sm text-gray-600 line-clamp-3 dark:text-gray-300">
+                                            {{ $review->review }}
+                                        </p>
+                                    </div>
+                                @endforeach
 
-                            <div 
-                                class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/50 py-10 transition hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-                                x-on:click="$dispatch('open-modal', { id: 'add-reviews-modal' })"
-                            >
-                                <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Add Reviews for the Highlight in Homepage.</p>
-                                <div class="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
-                                    Add Reviews
-                                    <x-heroicon-o-plus-circle class="h-5 w-5"/>
+                                {{-- "Add Reviews" card — always the last cell in the grid --}}
+                                <div 
+                                    class="flex min-h-[8rem] cursor-pointer flex-col items-center justify-start rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50 px-6 pt-5 pb-5 text-center transition hover:border-blue-400 hover:bg-blue-100/70 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+                                    x-on:click="$dispatch('open-modal', { id: 'add-reviews-modal' })"
+                                >
+                                    <p class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-300">Add Reviews for the Highlight in Homepage.</p>
+                                    <div class="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
+                                        Add Reviews
+                                        <x-heroicon-o-plus-circle class="h-5 w-5"/>
+                                    </div>
                                 </div>
                             </div>
 
@@ -611,7 +610,7 @@
                                 @endif
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $availReview->user?->name }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $availReview->dummy_room_type ?? 'Stay' }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $availReview->user?->name ? 'Guest' : 'Anonymous' }}</p>
                                 </div>
                             </div>
                         </div>

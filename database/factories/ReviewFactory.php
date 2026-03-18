@@ -20,7 +20,6 @@ class ReviewFactory extends Factory
             'booking_id' => $this->faker->unique()->numberBetween(10000, 99999),
             'user_id' => \App\Models\User::inRandomOrder()->first()?->id ?? 1,
             'property_id' => $this->faker->numberBetween(1, 50),
-            'dummy_room_type' => $this->faker->randomElement(['Family Stay', 'Couple Suite', 'Deluxe Room', 'Standard Single', 'Penthouse']),
             'rating' => $this->faker->randomFloat(1, 3.5, 5),
             'review' => $this->faker->paragraph(2),
             'status' => 'approved',
