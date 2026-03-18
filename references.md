@@ -98,6 +98,16 @@ Global (not country-scoped). Two tabs:
 
 **Tab 2 — Topics & FAQs:** Accordion layout. Topics as collapsible sections (Alpine.js `x-collapse`) with nested FAQs. Topic has auto-generated slug with collision handling. FAQs scoped per topic with independent sort_order. Hover edit/delete on both topics and FAQs. "+ Add FAQ" link per topic.
 
+### Manage Homepage (`/manage-homepage`)
+Content Management group. Accordion-style page with predefined sections; each section row expands to show an inline form.
+
+**Pattern:** `HasForms` + named form per section (e.g. `aboutUsForm`) with `statePath`. Data stored via `HomepageSectionService::updateSection()` (upsert by `section_key`). Pre-filled on `mount()` from DB.
+
+**Sections (Phase 1):**
+- **About Us** — Section Title, Description, Button Text, Contact No., Image (PNG/SVG, 770×600px max 2MB). Stored as `section_key = 'about_us'`.
+- **Amenities & Facilities** — Searchable Alpine.js multiselect with descriptions per selected facility. JSON data stored in `amenities_data`. Stored as `section_key = 'amenities'`.
+- **Guest Reviews** — 2-column grid showing saved validation reviews. Features an 'Add Reviews' Dashed button that opens a native `<x-filament::modal>` containing an Alpine.js/Livewire multi-select grid with text search and star rating filter. Saved data stored as array of review IDs in `reviews_data` JSON column. Stored as `section_key = 'guest_reviews'`.
+
 ---
 
 ## Key Files
@@ -115,6 +125,9 @@ Global (not country-scoped). Two tabs:
 | `app/Livewire/BlogCategoryTable.php` | Blog categories — standalone table component |
 | `app/Filament/Pages/BannerManage.php` | Banner CRUD table, country-scoped |
 | `app/Filament/Pages/HelpSupportManage.php` | How It Works + Topics & FAQs (tabbed) |
+| `app/Filament/Pages/HomepageManage.php` | Manage Homepage Sections — accordion page with inline forms |
+| `app/Models/HomepageSection.php` | Singleton-style model per section key |
+| `app/Services/HomepageSectionService.php` | `updateSection()` upsert, `getSection()` getter |
 | `app/Services/` | All business logic services |
 | `app/Enums/` | Status enums, roles, setup tasks |
 | `resources/css/filament/admin/theme.css` | Custom CSS overrides |

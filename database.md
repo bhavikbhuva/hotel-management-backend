@@ -321,8 +321,48 @@ Table faqs {
 }
 
 // ══════════════════════════════════════════════════════════════
+// MIGRATED (continued)
+// ══════════════════════════════════════════════════════════════
+
+Table homepage_sections {
+  id bigint unsigned [pk, auto]
+  section_key varchar [unique, note: 'e.g. about_us, amenities, guest_reviews']
+  title varchar [null]
+  description text [null]
+  button_text varchar [null]
+  contact_no varchar [null]
+  image varchar [null, note: 'Stored in public/homepage/. PNG/SVG, max 2MB, 770x600px']
+  is_active boolean [default: true]
+  amenities_data json [null, note: 'Array of {facility_id, description}']
+  reviews_data json [null, note: 'Array of review IDs']
+  created_at datetime
+  updated_at datetime
+}
+
+Table reviews {
+  id bigint unsigned [pk, auto]
+  booking_id bigint unsigned [unique]
+  user_id bigint unsigned
+  property_id bigint unsigned [null]
+  dummy_room_type varchar [null]
+  rating decimal(2,1)
+  review text
+  status varchar [default: 'pending', note: 'enum: pending, approved, hidden']
+  is_visible boolean [default: true]
+  is_edited boolean [default: false]
+  edited_at timestamp [null]
+  removal_requested boolean [default: false]
+  removal_status varchar [null, note: 'enum: pending, approved, rejected']
+  approved_by bigint unsigned [null]
+  approved_at timestamp [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ══════════════════════════════════════════════════════════════
 // PLANNED — these tables are designed but NOT yet migrated
 // ══════════════════════════════════════════════════════════════
+
 
 Table currencies {
   id int [pk]
