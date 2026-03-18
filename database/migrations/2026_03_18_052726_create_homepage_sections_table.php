@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('contact_no')->nullable();
             $table->string('image')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->json('amenities_data')->nullable();
+            $table->json('reviews_data')->nullable();
             $table->timestamps();
         });
     }
