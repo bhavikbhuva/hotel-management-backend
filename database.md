@@ -324,19 +324,26 @@ Table faqs {
 // MIGRATED (continued)
 // ══════════════════════════════════════════════════════════════
 
-Table homepage_sections {
+Table homepage_about_us {
   id bigint unsigned [pk, auto]
-  section_key varchar [unique, note: 'e.g. about_us, amenities, guest_reviews']
   title varchar [null]
   description text [null]
   button_text varchar [null]
   contact_no varchar [null]
   image varchar [null, note: 'Stored in public/homepage/. PNG/SVG, max 2MB, 770x600px']
   is_active boolean [default: true]
-  amenities_data json [null, note: 'Array of {facility_id, description}']
-  reviews_data json [null, note: 'Array of review IDs']
-  created_at datetime
-  updated_at datetime
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table homepage_amenities {
+  id bigint unsigned [pk, auto]
+  facility_id bigint unsigned [null]
+  description varchar [null]
+  sort_order integer [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
 }
 
 Table reviews {
@@ -348,6 +355,8 @@ Table reviews {
   review text
   status varchar [default: 'pending', note: 'enum: pending, approved, hidden']
   is_visible boolean [default: true]
+  is_featured boolean [default: false]
+  featured_order integer [null]
   is_edited boolean [default: false]
   edited_at timestamp [null]
   removal_requested boolean [default: false]

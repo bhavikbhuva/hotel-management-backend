@@ -4,7 +4,9 @@ namespace App\Filament\Pages;
 
 use App\Enums\FacilityStatus;
 use App\Models\Facility;
-use App\Services\HomepageSectionService;
+use App\Models\HomepageAboutUs;
+use App\Models\HomepageAmenity;
+use App\Models\Review;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
@@ -90,31 +92,21 @@ class HomepageManage extends Page
     public function mount(): void
     {
         // About Us
-        $aboutSection = app(HomepageSectionService::class)->getSection('about_us');
-        $this->about_title = $aboutSection?->title;
-        $this->about_description = $aboutSection?->description;
-        $this->about_button_text = $aboutSection?->button_text;
-        $this->about_contact_no = $aboutSection?->contact_no;
-        $this->about_image = $aboutSection?->image;
+        $aboutUs = HomepageAboutUs::first();
+        $this->about_title = $aboutUs?->title;
+        $this->about_description = $aboutUs?->description;
+        $this->about_button_text = $aboutUs?->button_text;
+        $this->about_contact_no = $aboutUs?->contact_no;
+        $this->about_image = $aboutUs?->image;
 
         // Amenities
-        $amenitiesSection = app(HomepageSectionService::class)->getSection('amenities');
-        $amenitiesData = $amenitiesSection?->amenities_data ?? [];
-
-        $this->amenities_selected = collect($amenitiesData)
-            ->pluck('facility_id')
-            ->map(fn ($id) => (int) $id)
-            ->toArray();
-
-        $this->amenities_descriptions = collect($amenitiesData)
-            ->mapWithKeys(fn ($item) => [(int) $item['facility_id'] => $item['description'] ?? ''])
-            ->toArray();
+        $amenities = HomepageAmenity::orderBy('sort_order')->get();
+        $this->amenities_selected = $amenities->pluck('facility_id')->toArray();
+        $this->amenities_descriptions = $amenities->mapWithKeys(fn ($item) => [(int) $item->facility_id => $item->description ?? ''])->toArray();
 
         // Guest Reviews
-        $reviewsSection = app(HomepageSectionService::class)->getSection('guest_reviews');
-        $this->reviews_selected = collect($reviewsSection?->reviews_data ?? [])
-            ->map(fn ($id) => (int) $id)
-            ->toArray();
+        $featuredReviews = Review::where('is_featured', true)->orderBy('featured_order')->get();
+        $this->reviews_selected = $featuredReviews->pluck('id')->toArray();
     }
 
     // ── About Us Save ────────────────────────────────────────────────
@@ -133,7 +125,8 @@ class HomepageManage extends Page
             $this->aboutImageUpload = null;
         }
 
-        app(HomepageSectionService::class)->updateSection('about_us', [
+        $aboutUs = HomepageAboutUs::firstOrCreate([]);
+        $aboutUs->update([
             'title' => $this->about_title,
             'description' => $this->about_description,
             'button_text' => $this->about_button_text,
@@ -155,17 +148,24 @@ class HomepageManage extends Page
             'amenities_descriptions.*' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $amenitiesData = collect($this->amenities_selected)
-            ->map(fn ($id) => [
-                'facility_id' => (int) $id,
-                'description' => $this->amenities_descriptions[(int) $id] ?? '',
-            ])
-            ->values()
-            ->toArray();
+        // Clear existing
+        HomepageAmenity::truncate();
 
-        app(HomepageSectionService::class)->updateSection('amenities', [
-            'amenities_data' => $amenitiesData,
-        ]);
+        // Insert new ones in order
+        $insertData = [];
+        $order = 0;
+        foreach ($this->amenities_selected as $facilityId) {
+            $insertData[] = [
+                'facility_id' => (int) $facilityId,
+                'description' => $this->amenities_descriptions[(int) $facilityId] ?? '',
+                'sort_order' => $order++,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        
+        HomepageAmenity::insert($insertData);
 
         Notification::make()
             ->title('Amenities & Facilities saved successfully.')
@@ -181,9 +181,21 @@ class HomepageManage extends Page
             'reviews_selected.*' => ['integer', 'exists:reviews,id'],
         ]);
 
-        app(HomepageSectionService::class)->updateSection('guest_reviews', [
-            'reviews_data' => array_values(array_map('intval', $this->reviews_selected)),
+        // Reset all
+        Review::where('is_featured', true)->update([
+            'is_featured' => false,
+            'featured_order' => null
         ]);
+
+        // Update selected
+        if (!empty($this->reviews_selected)) {
+            foreach (array_values(array_map('intval', $this->reviews_selected)) as $index => $reviewId) {
+                Review::where('id', $reviewId)->update([
+                    'is_featured' => true,
+                    'featured_order' => $index
+                ]);
+            }
+        }
 
         Notification::make()
             ->title('Guest Reviews saved successfully.')
@@ -193,7 +205,7 @@ class HomepageManage extends Page
 
     public function getAvailableReviewsProperty(): \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
     {
-        return \App\Models\Review::query()
+        return Review::query()
             ->with('user')
             ->where('status', 'approved')
             ->when($this->reviewSearch, function ($query, $search) {
@@ -221,7 +233,7 @@ class HomepageManage extends Page
             return collect();
         }
         
-        return \App\Models\Review::query()
+        return Review::query()
             ->with('user')
             ->whereIn('id', $this->reviews_selected)
             ->get()

@@ -101,12 +101,12 @@ Global (not country-scoped). Two tabs:
 ### Manage Homepage (`/manage-homepage`)
 Content Management group. Accordion-style page with predefined sections; each section row expands to show an inline form.
 
-**Pattern:** `HasForms` + named form per section (e.g. `aboutUsForm`) with `statePath`. Data stored via `HomepageSectionService::updateSection()` (upsert by `section_key`). Pre-filled on `mount()` from DB.
+**Pattern:** `HasForms` + named form per section (e.g. `aboutUsForm`). Data is stored across explicit normalized tables. Pre-filled on `mount()` direct from models.
 
 **Sections (Phase 1):**
-- **About Us** — Section Title, Description, Button Text, Contact No., Image (PNG/SVG, 770×600px max 2MB). Stored as `section_key = 'about_us'`.
-- **Amenities & Facilities** — Searchable Alpine.js multiselect with descriptions per selected facility. JSON data stored in `amenities_data`. Stored as `section_key = 'amenities'`.
-- **Guest Reviews** — 2-column grid showing saved validation reviews. Features an 'Add Reviews' Dashed button that opens a native `<x-filament::modal>` containing an Alpine.js/Livewire multi-select grid with text search and star rating filter. Saved data stored as array of review IDs in `reviews_data` JSON column. Stored as `section_key = 'guest_reviews'`.
+- **About Us** — Section Title, Description, Button Text, Contact No., Image (PNG/SVG, 770×600px max 2MB). Stored in `homepage_about_us` table.
+- **Amenities & Facilities** — Searchable Alpine.js multiselect with descriptions per selected facility. Saved as relational rows in `homepage_amenities` table.
+- **Guest Reviews** — 2-column grid showing saved validation reviews. Features an 'Add Reviews' Dashed button that opens a native `<x-filament::modal>` containing an Alpine.js/Livewire multi-select grid with text search and star rating filter. Saved by updating `is_featured` flag and `featured_order` integer right on the `reviews` table records.
 
 ---
 

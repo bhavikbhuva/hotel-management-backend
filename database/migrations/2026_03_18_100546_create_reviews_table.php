@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('review');
             $table->string('status')->default('pending');
             $table->boolean('is_visible')->default(true);
+            $table->boolean('is_featured')->default(false);
+            $table->integer('featured_order')->nullable();
             $table->boolean('is_edited')->default(false);
             $table->timestamp('edited_at')->nullable();
             $table->boolean('removal_requested')->default(false);
