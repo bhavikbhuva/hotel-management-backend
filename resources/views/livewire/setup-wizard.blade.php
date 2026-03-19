@@ -8,7 +8,7 @@
 
             {{-- Logo --}}
             <div class="mb-8">
-                <div class="h-8 w-36 rounded bg-blue-200"></div>
+                <!-- <div class="h-8 w-36 rounded bg-blue-200"></div> -->
             </div>
 
             <div class="w-full max-w-md">
@@ -65,6 +65,7 @@
                                     </svg>
                                 </div>
                                 <input wire:model="phone" type="tel" placeholder="+1 234 567 8900"
+                                    x-on:input="$event.target.value = $event.target.value.replace(/[^0-9+\s]/g, '')"
                                     class="block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('phone') ? 'border-red-400' : 'border-gray-300' }}" />
                             </div>
                             @error('phone') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
@@ -239,8 +240,7 @@
                             <div class="mt-6 grid grid-cols-2 gap-5">
 
                                 {{-- Multi-Property Card --}}
-                                <div wire:click="$set('systemMode', 'multi')"
-                                    class="cursor-pointer rounded-xl border p-5 transition-colors {{ $systemMode === 'multi' ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-300' }}">
+                                <div class="cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50 opacity-60 p-5">
                                     <div class="flex items-start justify-between">
                                         <div class="flex items-center gap-3">
                                             {{-- Multi-Property Icon --}}
@@ -258,18 +258,13 @@
                                                 <rect x="31" y="24" width="3.5" height="3.5" rx="0.5" fill="currentColor"/>
                                                 <rect x="28" y="30" width="5" height="7" rx="0.5" fill="currentColor"/>
                                             </svg>
-                                            <span class="text-sm font-semibold text-gray-900">Multi-Property Setup</span>
+                                            <div>
+                                                <div class="text-sm font-semibold text-gray-900">Multi-Property Setup</div>
+                                                <div class="mt-0.5 text-xs font-semibold text-blue-600">(Coming Soon)</div>
+                                            </div>
                                         </div>
                                         {{-- Radio Indicator --}}
-                                        @if ($systemMode === 'multi')
-                                            <div class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600">
-                                                <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                                </svg>
-                                            </div>
-                                        @else
-                                            <div class="h-5 w-5 flex-shrink-0 rounded-full border-2 border-gray-300"></div>
-                                        @endif
+                                        <div class="h-5 w-5 flex-shrink-0 rounded-full border-2 border-gray-300"></div>
                                     </div>
                                     <p class="mt-3 text-sm leading-relaxed text-gray-500">
                                         This setup is for platforms that allow multiple property owners or partners to list their properties. Admin reviews and approves partner properties, manages compliance, and earns revenue through a commission-based model. Best suited for hotel marketplaces and multi-owner platforms.
