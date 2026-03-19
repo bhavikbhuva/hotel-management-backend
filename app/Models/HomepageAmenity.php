@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class HomepageAmenity extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'facility_id',
+        'description',
+        'sort_order',
+        'is_active',
+    ];
 }

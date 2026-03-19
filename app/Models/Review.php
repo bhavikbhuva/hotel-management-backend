@@ -10,7 +10,23 @@ class Review extends Model
     /** @use HasFactory<\Database\Factories\ReviewFactory> */
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'booking_id',
+        'user_id',
+        'property_id',
+        'rating',
+        'review',
+        'status',
+        'is_visible',
+        'is_featured',
+        'featured_order',
+        'is_edited',
+        'edited_at',
+        'removal_requested',
+        'removal_status',
+        'approved_by',
+        'approved_at',
+    ];
 
     public function user()
     {
