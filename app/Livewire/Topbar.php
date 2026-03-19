@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Country;
-use App\Models\OperatingCountry;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Livewire\Concerns\HasUserMenu;
@@ -26,7 +25,7 @@ class Topbar extends Component implements HasActions, HasSchemas
     public function switchCountry(int $countryId): void
     {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         $user->switchCountry($countryId);
 
         $this->redirect(request()->header('Referer', '/'));
@@ -35,7 +34,7 @@ class Topbar extends Component implements HasActions, HasSchemas
     public function getOperatingCountriesProperty(): Collection
     {
         return Country::query()
-            ->whereIn('id', OperatingCountry::query()->pluck('country_id'))
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
     }
@@ -43,7 +42,7 @@ class Topbar extends Component implements HasActions, HasSchemas
     public function getCurrentCountryProperty(): ?Country
     {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
         if (! $user?->current_country_id) {
             return null;

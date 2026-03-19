@@ -7,7 +7,6 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Country;
 use App\Models\CountrySetupTask;
-use App\Models\OperatingCountry;
 use App\Models\PropertyType;
 use App\Models\RefCountry;
 use App\Models\Setting;
@@ -198,20 +197,14 @@ class SetupWizard extends Component
                     'currency_symbol' => $refCountry->currency_symbol,
                     'currency_code' => $refCountry->currency,
                     'currency_name' => $refCountry->currency_name,
+                    'is_active' => true,
                 ],
             );
 
             $operatingCountryIds[] = $country->id;
         }
 
-        OperatingCountry::query()->delete();
-        OperatingCountry::query()->insert(
-            array_map(fn (int $id) => [
-                'country_id' => $id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ], $operatingCountryIds)
-        );
+        Country::query()->whereNotIn('id', $operatingCountryIds)->update(['is_active' => false]);
 
         PropertyType::query()->update(['is_active' => false]);
         PropertyType::query()->where('id', $this->selectedPropertyType)->update(['is_active' => true]);

@@ -24,11 +24,6 @@ class Country extends Model
         return $this->belongsTo(RefCountry::class, 'ref_country_id');
     }
 
-    public function operatingCountry(): HasOne
-    {
-        return $this->hasOne(OperatingCountry::class);
-    }
-
     public function states(): HasMany
     {
         return $this->hasMany(State::class);
