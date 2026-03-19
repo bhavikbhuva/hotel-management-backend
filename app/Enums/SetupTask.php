@@ -49,7 +49,7 @@ enum SetupTask: string
             self::AdminProfile => '/admin-profile',
             self::Cities => '/cities',
             self::Taxes => '/taxes',
-            self::CancellationPolicy => '/cancellation-policy',
+            self::CancellationPolicy => '/manage-cancellation-policy',
             self::LegalPolicy => '/legal-policy',
         };
     }

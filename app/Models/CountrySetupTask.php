@@ -70,11 +70,14 @@ class CountrySetupTask extends Model
      */
     public static function markComplete(SetupTask $taskKey, ?int $countryId = null): void
     {
-        static::query()
-            ->where('task_key', $taskKey->value)
-            ->where('country_id', $countryId)
-            ->whereNull('completed_at')
-            ->update(['completed_at' => now()]);
+        $task = static::query()->firstOrCreate([
+            'task_key' => $taskKey->value,
+            'country_id' => $countryId,
+        ]);
+
+        if (is_null($task->completed_at)) {
+            $task->update(['completed_at' => now()]);
+        }
     }
 
     /**

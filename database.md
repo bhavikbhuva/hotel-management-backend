@@ -372,7 +372,7 @@ Table reviews {
 // ══════════════════════════════════════════════════════════════
 
 
-Table currencies {
+<!-- Table currencies {
   id int [pk]
   code varchar
   symbol varchar
@@ -499,4 +499,4 @@ Table payments {
   is_refunded boolean
   paid_at datetime
   created_at datetime
-}
+} -->
