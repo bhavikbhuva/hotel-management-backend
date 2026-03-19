@@ -50,7 +50,7 @@ Layout restructure (fixed sidebar), icon button styling, hover-reveal actions (`
 ## Modules
 
 ### Setup Wizard (`/setup`)
-Pure Livewire component (NOT Filament page) — needed full two-column layout control. 4 steps: Admin Account → System Mode (single/multi property) → Select Countries → Property Type. Creates admin user, seeds `operating_countries` and `country_setup_tasks`. After setup, `/setup` redirects to `/`.
+Pure Livewire component (NOT Filament page) — needed full two-column layout control. 4 steps: Admin Account → System Mode (single/multi property) → Select Countries → Property Type. Creates admin user, marks selected countries active and seeds `country_setup_tasks`. After setup, `/setup` redirects to `/`.
 
 **Key decision:** System mode (single vs multi-property) cannot be changed after setup.
 
@@ -90,6 +90,12 @@ Country-scoped. Table with modal CRUD (like taxes).
 **Scheduling logic:** No dates = immediate display. Start date only = visible from that date. Start + end = date range. Create modal enforces `minDate(now())` for dates; edit allows existing past dates.
 
 **Future fields (in DB, not UI):** `is_global`, `platform` (app/web/both), `sort_order`.
+
+### Cancellation Policies (`/manage-cancellation-policy`)
+Country-scoped and strictly attached to the Dashboard Setup Checklist. Employs cascading rules with a 0-day mandatory non-deletable default fallback. Inline editing within the Blade stack.
+
+### Corporate About Management (`/manage-about`)
+Accordion-style page managing Corporate 'Who We Are', 'Key Highlights', and 'Our Promises' with structured forms mapping to independent operational tables.
 
 ### Help & Support FAQs (`/help-support`)
 Global (not country-scoped). Two tabs:

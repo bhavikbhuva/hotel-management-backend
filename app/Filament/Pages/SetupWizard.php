@@ -185,7 +185,7 @@ class SetupWizard extends Component
         Setting::set('system_mode', $this->systemMode);
 
         // Create operational countries from selected ref_countries
-        $operatingCountryIds = [];
+        $activeCountryIds = [];
         foreach ($this->selectedCountries as $refCountryId) {
             $refCountry = RefCountry::findOrFail($refCountryId);
 
@@ -201,17 +201,17 @@ class SetupWizard extends Component
                 ],
             );
 
-            $operatingCountryIds[] = $country->id;
+            $activeCountryIds[] = $country->id;
         }
 
-        Country::query()->whereNotIn('id', $operatingCountryIds)->update(['is_active' => false]);
+        Country::query()->whereNotIn('id', $activeCountryIds)->update(['is_active' => false]);
 
         PropertyType::query()->update(['is_active' => false]);
         PropertyType::query()->where('id', $this->selectedPropertyType)->update(['is_active' => true]);
 
-        $user->update(['current_country_id' => $operatingCountryIds[0]]);
+        $user->update(['current_country_id' => $activeCountryIds[0]]);
 
-        CountrySetupTask::seedForCountries($operatingCountryIds);
+        CountrySetupTask::seedForCountries($activeCountryIds);
 
         // Auto-mark admin_profile as complete (data already filled during wizard)
         CountrySetupTask::markComplete(SetupTask::AdminProfile);

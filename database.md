@@ -125,13 +125,6 @@ Table countries {
   updated_at datetime
 }
 
-Table operating_countries {
-  id bigint unsigned [pk, auto]
-  country_id bigint unsigned [unique, ref: > countries.id, note: 'ON DELETE CASCADE']
-  created_at datetime
-  updated_at datetime
-}
-
 Table states {
   id bigint unsigned [pk, auto]
   ref_state_id mediumint unsigned [null, unique, note: 'Links to ref_states.id, no FK constraint']
@@ -344,6 +337,57 @@ Table homepage_amenities {
   is_active boolean [default: true]
   created_at timestamp
   updated_at timestamp
+}
+
+Table who_we_ares {
+  id bigint unsigned [pk, auto]
+  title varchar [null]
+  short_description varchar [null]
+  content text [null]
+  image varchar [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table key_highlights {
+  id bigint unsigned [pk, auto]
+  title varchar [null]
+  description text [null]
+  sort_order integer [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table our_promises {
+  id bigint unsigned [pk, auto]
+  title varchar [null]
+  content text [null]
+  features json [null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table cancellation_policies {
+  id bigint unsigned [pk, auto]
+  country_id bigint unsigned [ref: > countries.id, note: 'ON DELETE CASCADE']
+  property_type_id bigint unsigned [null, ref: > property_types.id, note: 'ON DELETE CASCADE']
+  cancellation_cutoff_time time [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table cancellation_policy_rules {
+  id bigint unsigned [pk, auto]
+  cancellation_policy_id bigint unsigned [ref: > cancellation_policies.id, note: 'ON DELETE CASCADE']
+  days_before_checkin integer unsigned
+  refund_percentage integer unsigned
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (cancellation_policy_id, days_before_checkin) [unique]
+  }
 }
 
 Table reviews {
