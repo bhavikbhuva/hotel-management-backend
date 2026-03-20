@@ -51,6 +51,28 @@ class Topbar extends Component implements HasActions, HasSchemas
         return Country::query()->find($user->current_country_id);
     }
 
+    public function getLanguagesProperty(): Collection
+    {
+        return \App\Models\Language::query()
+            ->where('status', true)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getCurrentLanguageProperty()
+    {
+        $locale = session('locale', \Illuminate\Support\Facades\App::getLocale());
+        return \App\Models\Language::where('code', $locale)->first() 
+            ?? \App\Models\Language::where('is_default', true)->first();
+    }
+
+    public function switchLanguage(string $code): void
+    {
+        session(['locale' => $code]);
+        \Illuminate\Support\Facades\App::setLocale($code);
+        $this->redirect(request()->header('Referer', '/'));
+    }
+
     public function render(): View
     {
         return view('livewire.topbar');

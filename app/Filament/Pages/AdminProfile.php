@@ -19,7 +19,12 @@ class AdminProfile extends Page
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
 
-    protected static ?string $title = 'My Profile';
+    protected static ?string $title = 'admin.my_profile';
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('admin.my_profile');
+    }
 
     protected static bool $shouldRegisterNavigation = false;
 
@@ -33,12 +38,12 @@ class AdminProfile extends Page
 
     public function getSubheading(): ?string
     {
-        return 'Update your personal information and manage your account password.';
+        return __('admin.subheading_profile');
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'My Profile';
+        return __('admin.my_profile');
     }
 
     public function editProfileAction(): Action
@@ -47,12 +52,12 @@ class AdminProfile extends Page
         $user = auth()->user();
 
         return Action::make('editProfile')
-            ->label('Edit Details')
-            ->modalHeading('Edit Profile')
+            ->label(__('admin.edit_details'))
+            ->modalHeading(__('admin.edit_profile'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('md')
-            ->modalSubmitActionLabel('Save Details')
+            ->modalSubmitActionLabel(__('admin.save_details'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->fillForm([
@@ -63,7 +68,7 @@ class AdminProfile extends Page
             ])
             ->schema([
                 FileUpload::make('avatar')
-                    ->label('Profile Photo')
+                    ->label(__('admin.profile_photo'))
                     ->image()
                     ->disk('public')
                     ->directory('avatars')
@@ -71,17 +76,17 @@ class AdminProfile extends Page
                     ->acceptedFileTypes(['image/png', 'image/svg+xml', 'image/jpeg'])
                     ->helperText('Maximum Size: 5MB. Supported Files: PNG/SVG/JPG'),
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('admin.name'))
                     ->required()
                     ->maxLength(255),
                 TextInput::make('phone')
-                    ->label('Phone')
+                    ->label(__('admin.phone'))
                     ->required()
                     ->tel()
                     ->maxLength(20)
                     ->placeholder('E.g., +1 (555) 123-4567'),
                 TextInput::make('email')
-                    ->label('Email')
+                    ->label(__('admin.email'))
                     ->required()
                     ->email()
                     ->maxLength(255)
@@ -99,7 +104,7 @@ class AdminProfile extends Page
                 ]);
 
                 Notification::make()
-                    ->title('Profile updated successfully.')
+                    ->title(__('admin.profile_updated'))
                     ->success()
                     ->send();
             });
@@ -123,7 +128,7 @@ class AdminProfile extends Page
         $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
 
         Notification::make()
-            ->title('Password updated successfully.')
+            ->title(__('admin.password_updated'))
             ->success()
             ->send();
     }

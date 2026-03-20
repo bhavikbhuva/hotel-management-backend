@@ -50,7 +50,51 @@
         </div>
 
         {{-- Right side --}}
-        <div class="fi-topbar-end">
+        <div class="fi-topbar-end flex items-center gap-x-3">
+            {{-- Language switcher --}}
+            @if ($this->currentLanguage && $this->languages->count() > 0)
+                <div x-data="{ openLang: false }" class="relative">
+                    <button
+                        type="button"
+                        x-on:click="openLang = !openLang"
+                        class="flex items-center gap-x-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        <span>{{ strtoupper($this->currentLanguage->code) }}</span>
+                        <svg class="h-4 w-4 text-gray-400 transition" :class="{ 'rotate-180': openLang }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    <div
+                        x-show="openLang"
+                        x-on:click.outside="openLang = false"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95"
+                        class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                        style="display: none;"
+                    >
+                        @foreach ($this->languages as $lang)
+                            <button
+                                type="button"
+                                wire:click="switchLanguage('{{ $lang->code }}')"
+                                class="flex w-full items-center gap-x-2 px-3 py-2 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-700 {{ $lang->code === $this->currentLanguage->code ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300' }}"
+                            >
+                                <span>{{ $lang->name }}</span>
+                                @if ($lang->code === $this->currentLanguage->code)
+                                    <svg class="ms-auto h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- Country switcher --}}
             @if ($this->currentCountry)
                 <div x-data="{ open: false }" class="relative">

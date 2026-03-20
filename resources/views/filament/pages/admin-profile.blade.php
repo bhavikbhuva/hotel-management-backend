@@ -36,9 +36,9 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.phone') }}</p>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
-                            {{ $user->phone ?? 'Not set' }}
+                            {{ $user->phone ?? __('admin.not_set') }}
                         </p>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.email') }}</p>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
                             {{ $user->email }}
                         </p>
@@ -63,7 +63,7 @@
         {{-- Change Password Card --}}
         <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Change Password</h3>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ __('admin.change_password') }}</h3>
             </div>
 
             <form wire:submit="updatePassword" class="p-6">
@@ -71,7 +71,7 @@
                     {{-- Current Password --}}
                     <div>
                         <label for="current_password" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Current Password <span class="text-red-500">*</span>
+                            {{ __('admin.current_password') }} <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input
@@ -90,7 +90,7 @@
                     {{-- New Password --}}
                     <div>
                         <label for="new_password" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            New Password <span class="text-red-500">*</span>
+                            {{ __('admin.new_password') }} <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input
@@ -109,7 +109,7 @@
                     {{-- Confirm New Password --}}
                     <div>
                         <label for="new_password_confirmation" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Re-Enter New Password <span class="text-red-500">*</span>
+                            {{ __('admin.confirm_password') }} <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input
@@ -131,7 +131,7 @@
                         type="submit"
                         class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
-                        Update Password
+                        {{ __('admin.update_password') }}
                     </button>
                 </div>
             </form>

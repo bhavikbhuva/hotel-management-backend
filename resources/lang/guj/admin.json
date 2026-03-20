@@ -1,0 +1,19 @@
+{
+    "my_profile": "મારી પ્રોફાઇલ",
+    "subheading_profile": "તમારી વ્યક્તિગત માહિતી અપડેટ કરો અને તમારા એકાઉન્ટનો પાસવર્ડ મેનેજ કરો.",
+    "edit_details": "વિગતોમાં સુધારો કરો",
+    "edit_profile": "પ્રોફાઇલમાં સુધારો કરો",
+    "save_details": "વિગતો સાચવો",
+    "profile_photo": "પ્રોફાઇલ ફોટો",
+    "name": "નામ",
+    "phone": "ફોન",
+    "email": "ઈમેઈલ",
+    "profile_updated": "પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઈ ગઈ.",
+    "change_password": "પાસવર્ડ બદલો",
+    "current_password": "વર્તમાન પાસવર્ડ",
+    "new_password": "નવો પાસવર્ડ",
+    "confirm_password": "નવો પાસવર્ડ ફરીથી દાખલ કરો",
+    "update_password": "પાસવર્ડ અપડેટ કરો",
+    "password_updated": "પાસવર્ડ સફળતાપૂર્વક બદલાઈ ગયો.",
+    "not_set": "સેટ કરેલ નથી"
+}

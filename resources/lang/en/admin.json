@@ -1,0 +1,19 @@
+{
+    "my_profile": "My Profile",
+    "subheading_profile": "Update your personal information and manage your account password.",
+    "edit_details": "Edit Details",
+    "edit_profile": "Edit Profile",
+    "save_details": "Save Details",
+    "profile_photo": "Profile Photo",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "profile_updated": "Profile updated successfully.",
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Re-Enter New Password",
+    "update_password": "Update Password",
+    "password_updated": "Password updated successfully.",
+    "not_set": "Not set"
+}

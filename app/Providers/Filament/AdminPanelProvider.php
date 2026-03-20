@@ -85,10 +85,13 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\SetLocale::class,
                 EnsureSetupIsCompleted::class,
             ])
             ->authMiddleware([
                 FilamentAuthenticate::class,
-            ]);
+            ])
+            ->spa();
+
     }
 }
