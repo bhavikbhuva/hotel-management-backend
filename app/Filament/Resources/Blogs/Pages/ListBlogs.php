@@ -24,12 +24,12 @@ class ListBlogs extends ListRecords
 
     public function getHeading(): string|Htmlable
     {
-        return 'Blogs Management';
+        return __('admin.blogs_management');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Create, edit, and manage your content marketing articles.';
+        return __('admin.create_edit_and_manage_your_content_marketing_articles');
     }
 
     protected function getHeaderActions(): array

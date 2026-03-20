@@ -83,10 +83,10 @@
                 </div>
 
                 <h4 class="text-base font-semibold text-gray-950 dark:text-white">
-                    No Facilities or Amenities Added
+                    {{ __('admin.no_facilities_or_amenities_added') }}
                 </h4>
                 <p class="max-w-md text-sm text-gray-500 dark:text-gray-400">
-                    Create facilities and amenities to standardize property features and improve filtering.
+                    {{ __('admin.create_facilities_and_amenities_to_standardize_property_features_and_improve_filtering') }}
                 </p>
             </div>
         </div>

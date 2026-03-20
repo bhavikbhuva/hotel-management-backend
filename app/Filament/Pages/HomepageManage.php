@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Enums\FacilityStatus;
 use App\Models\Facility;
 use App\Models\HomepageAboutUs;
@@ -20,9 +22,15 @@ class HomepageManage extends Page
 
     protected static ?string $slug = 'manage-homepage';
 
-    protected static ?string $title = 'Manage Homepage';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.manage_homepage');
+    }
 
-    protected static ?string $navigationLabel = 'Manage Homepage';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.manage_homepage');
+    }
 
     protected static ?int $navigationSort = 2;
 
@@ -66,17 +74,17 @@ class HomepageManage extends Page
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Content Management';
+        return NavigationGroup::ContentManagement;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'Manage Homepage Sections';
+        return __('admin.manage_homepage_sections');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Customize your property homepage sections with real-time preview.';
+        return __('admin.customize_your_property_homepage_sections_with_realtime_preview');
     }
 
     public function getBreadcrumbs(): array
@@ -135,7 +143,7 @@ class HomepageManage extends Page
         ]);
 
         Notification::make()
-            ->title('About Us section saved successfully.')
+            ->title(__('admin.about_us_section_saved_successfully'))
             ->success()
             ->send();
     }
@@ -168,7 +176,7 @@ class HomepageManage extends Page
         HomepageAmenity::insert($insertData);
 
         Notification::make()
-            ->title('Amenities & Facilities saved successfully.')
+            ->title(__('admin.amenities_facilities_saved_successfully'))
             ->success()
             ->send();
     }
@@ -198,7 +206,7 @@ class HomepageManage extends Page
         }
 
         Notification::make()
-            ->title('Guest Reviews saved successfully.')
+            ->title(__('admin.guest_reviews_saved_successfully'))
             ->success()
             ->send();
     }

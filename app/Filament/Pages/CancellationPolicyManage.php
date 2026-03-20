@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use Filament\Pages\Page;
 use App\Models\CancellationPolicy;
 use App\Models\CancellationPolicyRule;
@@ -15,8 +17,14 @@ use App\Enums\SetupTask;
 class CancellationPolicyManage extends Page
 {
     protected static ?string $slug = 'manage-cancellation-policy';
-    protected static ?string $title = 'Cancellation Policies';
-    protected static ?string $navigationLabel = 'Cancellation Policy';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.cancellation_policies');
+    }
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.cancellation_policy');
+    }
     protected static ?int $navigationSort = 5;
 
     protected string $view = 'filament.pages.cancellation-policy-manage';
@@ -28,17 +36,17 @@ class CancellationPolicyManage extends Page
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Location & Policies';
+        return NavigationGroup::LocationPolicies;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'Cancellation Policies';
+        return __('admin.cancellation_policies');
     }
 
     public function getSubheading(): ?string
     {
-        return "Manage refund rules for all bookings.";
+        return __('admin.manage_refund_rules_for_all_bookings');
     }
 
     public function getBreadcrumbs(): array
@@ -117,7 +125,7 @@ class CancellationPolicyManage extends Page
 
         $this->checkAndMarkComplete($policy);
 
-        Notification::make()->title('Cutoff time saved successfully.')->success()->send();
+        Notification::make()->title(__('admin.cutoff_time_saved_successfully'))->success()->send();
     }
 
     public function addNewRule()
@@ -143,14 +151,14 @@ class CancellationPolicyManage extends Page
         $rule = CancellationPolicyRule::find($ruleId);
         // Prevent deleting the 0 days rule if we want to make it mandatory
         if ($rule && $rule->days_before_checkin === 0) {
-            Notification::make()->title('Cannot delete the mandatory 0 day fallback rule.')->danger()->send();
+            Notification::make()->title(__('admin.cannot_delete_the_mandatory_0_day_fallback_rule'))->danger()->send();
             return;
         }
         
         if ($rule) {
             $rule->delete();
             $this->loadRules();
-            Notification::make()->title('Rule deleted.')->success()->send();
+            Notification::make()->title(__('admin.rule_deleted'))->success()->send();
         }
     }
 
@@ -175,7 +183,7 @@ class CancellationPolicyManage extends Page
             ->first();
 
         if ($existing) {
-            $this->addError('days_before', 'A rule for this many days already exists.');
+            $this->addError('days_before', __('admin.a_rule_for_this_many_days_already_exists'));
             return;
         }
 
@@ -198,7 +206,7 @@ class CancellationPolicyManage extends Page
 
         $this->checkAndMarkComplete($policy);
 
-        Notification::make()->title('Rule saved successfully.')->success()->send();
+        Notification::make()->title(__('admin.rule_saved_successfully'))->success()->send();
     }
 
     public function cancelRule()

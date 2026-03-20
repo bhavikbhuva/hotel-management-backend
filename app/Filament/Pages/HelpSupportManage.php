@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Models\Faq;
 use App\Models\FaqTopic;
 use App\Models\HowItWorksStep;
@@ -25,9 +27,15 @@ class HelpSupportManage extends Page
 {
     protected static ?string $slug = 'help-support';
 
-    protected static ?string $title = 'How It Works Steps';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.how_it_works_steps');
+    }
 
-    protected static ?string $navigationLabel = 'Help & Support FAQs';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.help_support_faqs');
+    }
 
     protected static ?int $navigationSort = 1;
 
@@ -43,7 +51,7 @@ class HelpSupportManage extends Page
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Content Management';
+        return NavigationGroup::ContentManagement;
     }
 
     public function getHeading(): string|Htmlable
@@ -84,13 +92,13 @@ class HelpSupportManage extends Page
 
     public function addStepAction(): Action
     {
-        return Action::make('addStep')
-            ->label('+ Add Steps')
-            ->modalHeading('Add New Step')
+        return Action::make(__('admin.addstep'))
+            ->label(__('admin.add_steps'))
+            ->modalHeading(__('admin.add_new_step'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Add Step')
+            ->modalSubmitActionLabel(__('admin.add_step'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getStepFormSchema())
@@ -107,7 +115,7 @@ class HelpSupportManage extends Page
                 app(HowItWorksService::class)->createStep($data);
 
                 Notification::make()
-                    ->title('Step added successfully.')
+                    ->title(__('admin.step_added_successfully'))
                     ->success()
                     ->send();
             });
@@ -115,15 +123,15 @@ class HelpSupportManage extends Page
 
     public function editStepAction(): Action
     {
-        return Action::make('editStep')
+        return Action::make(__('admin.editstep'))
             ->iconButton()
             ->icon('heroicon-o-pencil')
             ->color('gray')
-            ->modalHeading('Edit Step')
+            ->modalHeading(__('admin.edit_step'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Save Step')
+            ->modalSubmitActionLabel(__('admin.save_step'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getStepFormSchema())
@@ -145,7 +153,7 @@ class HelpSupportManage extends Page
                 app(HowItWorksService::class)->updateStep($step, $data);
 
                 Notification::make()
-                    ->title('Step updated successfully.')
+                    ->title(__('admin.step_updated_successfully'))
                     ->success()
                     ->send();
             });
@@ -153,15 +161,15 @@ class HelpSupportManage extends Page
 
     public function deleteStepAction(): Action
     {
-        return Action::make('deleteStep')
+        return Action::make(__('admin.deletestep'))
             ->iconButton()
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
             ->modalIcon('heroicon-o-trash')
-            ->modalHeading('Delete Step?')
+            ->modalHeading(__('admin.delete_step'))
             ->modalDescription('Are you sure you want to delete this step? It will be removed from the "How It Works" section.')
-            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalSubmitActionLabel(__('admin.yes_delete'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->action(function (array $arguments): void {
@@ -174,7 +182,7 @@ class HelpSupportManage extends Page
                 app(HowItWorksService::class)->deleteStep($step);
 
                 Notification::make()
-                    ->title('Step deleted successfully.')
+                    ->title(__('admin.step_deleted_successfully'))
                     ->success()
                     ->send();
             });
@@ -196,13 +204,13 @@ class HelpSupportManage extends Page
 
     public function addTopicAction(): Action
     {
-        return Action::make('addTopic')
-            ->label('+ Add Topic')
-            ->modalHeading('Add New Topic')
+        return Action::make(__('admin.addtopic'))
+            ->label(__('admin.add_topic'))
+            ->modalHeading(__('admin.add_new_topic'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Add Topic')
+            ->modalSubmitActionLabel(__('admin.add_topic'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getTopicFormSchema())
@@ -210,7 +218,7 @@ class HelpSupportManage extends Page
                 app(FaqTopicService::class)->createTopic($data);
 
                 Notification::make()
-                    ->title('Topic added successfully.')
+                    ->title(__('admin.topic_added_successfully'))
                     ->success()
                     ->send();
             });
@@ -218,15 +226,15 @@ class HelpSupportManage extends Page
 
     public function editTopicAction(): Action
     {
-        return Action::make('editTopic')
+        return Action::make(__('admin.edittopic'))
             ->iconButton()
             ->icon('heroicon-o-pencil')
             ->color('gray')
-            ->modalHeading('Edit Topic')
+            ->modalHeading(__('admin.edit_topic'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Save Topic')
+            ->modalSubmitActionLabel(__('admin.save_topic'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getTopicFormSchema(isCreate: false))
@@ -249,7 +257,7 @@ class HelpSupportManage extends Page
                 app(FaqTopicService::class)->updateTopic($topic, $data);
 
                 Notification::make()
-                    ->title('Topic updated successfully.')
+                    ->title(__('admin.topic_updated_successfully'))
                     ->success()
                     ->send();
             });
@@ -257,15 +265,15 @@ class HelpSupportManage extends Page
 
     public function deleteTopicAction(): Action
     {
-        return Action::make('deleteTopic')
+        return Action::make(__('admin.deletetopic'))
             ->iconButton()
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
             ->modalIcon('heroicon-o-trash')
-            ->modalHeading('Delete Topic?')
-            ->modalDescription('Are you sure you want to delete this topic? All FAQs under this topic will also be deleted.')
-            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalHeading(__('admin.delete_topic'))
+            ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_topic_all_faqs_under_this_topic_will_also_be_deleted'))
+            ->modalSubmitActionLabel(__('admin.yes_delete'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->action(function (array $arguments): void {
@@ -278,7 +286,7 @@ class HelpSupportManage extends Page
                 app(FaqTopicService::class)->deleteTopic($topic);
 
                 Notification::make()
-                    ->title('Topic deleted successfully.')
+                    ->title(__('admin.topic_deleted_successfully'))
                     ->success()
                     ->send();
             });
@@ -290,16 +298,16 @@ class HelpSupportManage extends Page
 
     public function addFaqAction(): Action
     {
-        return Action::make('addFaq')
+        return Action::make(__('admin.addfaq'))
             ->link()
             ->icon('heroicon-o-plus')
             ->color('primary')
-            ->label('Add FAQ')
-            ->modalHeading('Add New FAQ')
+            ->label(__('admin.add_faq'))
+            ->modalHeading(__('admin.add_new_faq'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Add FAQ')
+            ->modalSubmitActionLabel(__('admin.add_faq'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema(fn (array $arguments): array => $this->getFaqFormSchema($arguments['topic'] ?? null))
@@ -313,7 +321,7 @@ class HelpSupportManage extends Page
                 app(FaqService::class)->createFaq($topicId, $data);
 
                 Notification::make()
-                    ->title('FAQ added successfully.')
+                    ->title(__('admin.faq_added_successfully'))
                     ->success()
                     ->send();
             });
@@ -321,15 +329,15 @@ class HelpSupportManage extends Page
 
     public function editFaqAction(): Action
     {
-        return Action::make('editFaq')
+        return Action::make(__('admin.editfaq'))
             ->iconButton()
             ->icon('heroicon-o-pencil')
             ->color('gray')
-            ->modalHeading('Edit FAQ')
+            ->modalHeading(__('admin.edit_faq'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Save FAQ')
+            ->modalSubmitActionLabel(__('admin.save_faq'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema(function (array $arguments): array {
@@ -355,7 +363,7 @@ class HelpSupportManage extends Page
                 app(FaqService::class)->updateFaq($faq, $data);
 
                 Notification::make()
-                    ->title('FAQ updated successfully.')
+                    ->title(__('admin.faq_updated_successfully'))
                     ->success()
                     ->send();
             });
@@ -363,15 +371,15 @@ class HelpSupportManage extends Page
 
     public function deleteFaqAction(): Action
     {
-        return Action::make('deleteFaq')
+        return Action::make(__('admin.deletefaq'))
             ->iconButton()
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
             ->modalIcon('heroicon-o-trash')
-            ->modalHeading('Delete FAQ?')
-            ->modalDescription('Are you sure you want to delete this FAQ?')
-            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalHeading(__('admin.delete_faq'))
+            ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_faq'))
+            ->modalSubmitActionLabel(__('admin.yes_delete'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->action(function (array $arguments): void {
@@ -384,7 +392,7 @@ class HelpSupportManage extends Page
                 app(FaqService::class)->deleteFaq($faq);
 
                 Notification::make()
-                    ->title('FAQ deleted successfully.')
+                    ->title(__('admin.faq_deleted_successfully'))
                     ->success()
                     ->send();
             });
@@ -423,13 +431,13 @@ class HelpSupportManage extends Page
                     '</div>'
                 )),
             TextInput::make('title')
-                ->label('Title')
-                ->placeholder('e.g, Search your stay')
+                ->label(__('admin.title'))
+                ->placeholder(__('admin.eg_search_your_stay'))
                 ->required()
                 ->maxLength(255),
             Textarea::make('description')
-                ->label('Description')
-                ->placeholder('Brief Description of the steps...')
+                ->label(__('admin.description'))
+                ->placeholder(__('admin.brief_description_of_the_steps'))
                 ->required()
                 ->maxLength(90)
                 ->live(onBlur: false, debounce: 300)
@@ -445,8 +453,8 @@ class HelpSupportManage extends Page
     {
         return [
             TextInput::make('title')
-                ->label('Topic Title')
-                ->placeholder('e.g, Booking & Reservations')
+                ->label(__('admin.topic_title'))
+                ->placeholder(__('admin.eg_booking_reservations'))
                 ->required()
                 ->maxLength(255)
                 ->live(onBlur: true)
@@ -456,8 +464,8 @@ class HelpSupportManage extends Page
                     }
                 }),
             TextInput::make('slug')
-                ->label('Slug')
-                ->placeholder('auto-generated-from-title')
+                ->label(__('admin.slug'))
+                ->placeholder(__('admin.autogeneratedfromtitle'))
                 ->required($isCreate)
                 ->maxLength(255)
                 ->disabled(! $isCreate)
@@ -465,8 +473,8 @@ class HelpSupportManage extends Page
                     ? 'Auto-generated from title. You can edit it manually.'
                     : 'Slug cannot be changed after creation.'),
             Textarea::make('description')
-                ->label('Description')
-                ->placeholder('Brief description of this topic...')
+                ->label(__('admin.description'))
+                ->placeholder(__('admin.brief_description_of_this_topic'))
                 ->required()
                 ->maxLength(500)
                 ->live(onBlur: false, debounce: 300)
@@ -484,16 +492,16 @@ class HelpSupportManage extends Page
 
         return [
             Placeholder::make('topic_name')
-                ->label('Topic')
+                ->label(__('admin.topic'))
                 ->content($topicName),
             TextInput::make('question')
-                ->label('Question')
-                ->placeholder('e.g, How do I cancel my booking?')
+                ->label(__('admin.question'))
+                ->placeholder(__('admin.eg_how_do_i_cancel_my_booking'))
                 ->required()
                 ->maxLength(500),
             Textarea::make('answer')
-                ->label('Answer')
-                ->placeholder('Write a clear and helpful answer...')
+                ->label(__('admin.answer'))
+                ->placeholder(__('admin.write_a_clear_and_helpful_answer'))
                 ->required()
                 ->maxLength(2000)
                 ->live(onBlur: false, debounce: 300)

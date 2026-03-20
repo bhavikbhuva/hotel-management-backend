@@ -3,16 +3,16 @@
         {{-- Header --}}
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Platform Setup Checklist</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ __('admin.platform_setup_checklist') }}</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Complete these essential steps to fully configure your platform.
+                    {{ __('admin.complete_these_essential_steps_to_fully_configure_your_platform') }}
                 </p>
             </div>
 
             {{-- Progress --}}
             <div class="flex w-64 flex-col justify-center rounded-2xl bg-[#f0f5fa] p-4 dark:bg-gray-800">
                 <div class="mb-2 flex items-center justify-between">
-                    <span class="text-sm font-semibold text-gray-800 dark:text-white">Progress</span>
+                    <span class="text-sm font-semibold text-gray-800 dark:text-white">{{ __('admin.progress') }}</span>
                     <span class="text-sm font-bold text-blue-600 dark:text-blue-400">
                         {{ round(($completedCount / $totalTasks) * 100) }}%
                     </span>

@@ -54,7 +54,7 @@
         </template>
         <template x-if="! previewUrl">
             <div class="flex h-full w-full items-center justify-center text-xs text-gray-400 dark:text-gray-500">
-                1620 X 823
+                {{ __('admin.1620_x_823') }}
             </div>
         </template>
 
@@ -77,7 +77,7 @@
                 {{ $categoryName }}
             </span>
         @else
-            <span class="text-xs text-gray-400 dark:text-gray-500">Category</span>
+            <span class="text-xs text-gray-400 dark:text-gray-500">{{ __('admin.category') }}</span>
         @endif
 
         {{-- Title --}}
@@ -102,5 +102,5 @@
 
 {{-- Footer Note --}}
 <p class="mt-3 rounded-lg bg-gray-50 p-3 text-center text-xs text-gray-400 dark:bg-gray-800 dark:text-gray-500">
-    Preview shows how the card appears on the live website.
+    {{ __('admin.preview_shows_how_the_card_appears_on_the_live_website') }}
 </p>

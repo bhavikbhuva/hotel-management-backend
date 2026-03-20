@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
 use App\Models\Language;
 use Illuminate\Support\Arr;
 use Filament\Forms\Components\FileUpload;
@@ -32,9 +33,20 @@ class ManageLanguages extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-language';
-    protected static ?string $navigationLabel = 'Languages';
-    protected static ?string $title = 'Languages';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.languages');
+    }
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.languages');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return NavigationGroup::Settings;
+    }
+
     protected string $view = 'filament.pages.manage-languages';
 
     public ?array $data = [];
@@ -48,33 +60,33 @@ class ManageLanguages extends Page implements HasForms, HasTable
     {
         return $form
             ->schema([
-                Section::make('Add Language')
+                Section::make(__('admin.add_language'))
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('name')
-                                ->label('Language Name *')
-                                ->placeholder('Language Name')
+                                ->label(__('admin.language_name'))
+                                ->placeholder(__('admin.language_name'))
                                 ->required()
                                 ->maxLength(255),
 
                             TextInput::make('code')
-                                ->label('Language Code *')
-                                ->placeholder('Language Code')
+                                ->label(__('admin.language_code'))
+                                ->placeholder(__('admin.language_code'))
                                 ->required()
                                 ->unique('languages', 'code')
                                 ->regex('/^[a-z0-9-]+$/')
-                                ->helperText('Only Small English Characters, Numbers And Hyphens Allowed'),
+                                ->helperText(__('admin.only_small_english_characters_numbers_and_hyphens_allowed')),
 
                             Grid::make(3)->schema([
-                                Toggle::make('is_rtl')->label('RTL')->inline(false),
-                                Toggle::make('status')->label('Status')->default(true)->inline(false),
-                                Toggle::make('is_default')->label('Default')->inline(false),
+                                Toggle::make('is_rtl')->label(__('admin.rtl'))->inline(false),
+                                Toggle::make('status')->label(__('admin.status'))->default(true)->inline(false),
+                                Toggle::make('is_default')->label(__('admin.default'))->inline(false),
                             ])->columnSpan(1),
                         ]),
 
                         Grid::make(6)->schema([
                             FileUpload::make('admin_json')
-                                ->label('File For Admin Panel *')
+                                ->label(__('admin.file_for_admin_panel'))
                                 ->disk('local')
                                 ->directory('temp/translations')
                                 ->acceptedFileTypes(['application/json'])
@@ -83,7 +95,7 @@ class ManageLanguages extends Page implements HasForms, HasTable
                                 ->required(),
 
                             FileUpload::make('app_json')
-                                ->label('File For App')
+                                ->label(__('admin.file_for_app'))
                                 ->disk('local')
                                 ->directory('temp/translations')
                                 ->acceptedFileTypes(['application/json'])
@@ -91,7 +103,7 @@ class ManageLanguages extends Page implements HasForms, HasTable
                                 ->columnSpan(2),
 
                             FileUpload::make('web_json')
-                                ->label('File For Web')
+                                ->label(__('admin.file_for_web'))
                                 ->disk('local')
                                 ->directory('temp/translations')
                                 ->acceptedFileTypes(['application/json'])
@@ -100,18 +112,18 @@ class ManageLanguages extends Page implements HasForms, HasTable
                         ]),
 
                         Actions::make([
-                            Action::make('sample_admin')
-                                ->label('Sample for Admin')
+                            Action::make(__('admin.sampleadmin'))
+                                ->label(__('admin.sample_for_admin'))
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->color('success')
                                 ->action(fn () => $this->downloadSample('admin')),
-                            Action::make('sample_app')
-                                ->label('Sample for App')
+                            Action::make(__('admin.sampleapp'))
+                                ->label(__('admin.sample_for_app'))
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->color('success')
                                 ->action(fn () => $this->downloadSample('app')),
-                            Action::make('sample_web')
-                                ->label('Sample for Web')
+                            Action::make(__('admin.sampleweb'))
+                                ->label(__('admin.sample_for_web'))
                                 ->icon('heroicon-o-arrow-down-tray')
                                 ->color('success')
                                 ->action(fn () => $this->downloadSample('web')),
@@ -142,11 +154,11 @@ class ManageLanguages extends Page implements HasForms, HasTable
             $this->processUploadedFile($data['app_json'] ?? null, $language->code, 'app.php');
             $this->processUploadedFile($data['web_json'] ?? null, $language->code, 'web.php');
 
-            Notification::make()->title('Translations updated successfully')->success()->send();
+            Notification::make()->title(__('admin.translations_updated_successfully'))->success()->send();
             $this->form->fill();
 
         } catch (\Exception $e) {
-            Notification::make()->title('Validation Error')->body($e->getMessage())->danger()->send();
+            Notification::make()->title(__('admin.validation_error'))->body($e->getMessage())->danger()->send();
         }
     }
 
@@ -217,15 +229,15 @@ class ManageLanguages extends Page implements HasForms, HasTable
         return $table
             ->query(Language::query()->latest())
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('name')->label('Name')->searchable(),
-                TextColumn::make('code')->label('Code')->searchable(),
+                TextColumn::make('id')->label(__('admin.id'))->sortable(),
+                TextColumn::make('name')->label(__('admin.name'))->searchable(),
+                TextColumn::make('code')->label(__('admin.code'))->searchable(),
                 TextColumn::make('is_rtl')
-                    ->label('Is RTL')
+                    ->label(__('admin.is_rtl'))
                     ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
-                ToggleColumn::make('status')->label('Status'),
+                ToggleColumn::make('status')->label(__('admin.status')),
                 IconColumn::make('is_default')
-                    ->label('Default')
+                    ->label(__('admin.default'))
                     ->boolean()
                     ->trueIcon('heroicon-o-star')
                     ->falseIcon('')
@@ -236,24 +248,24 @@ class ManageLanguages extends Page implements HasForms, HasTable
                     ->form([
                         TextInput::make('name')->required()->maxLength(255),
                         TextInput::make('code')->required()->unique(ignoreRecord: true)->regex('/^[a-zA-Z0-9-]+$/'),
-                        Toggle::make('is_rtl')->label('Is RTL'),
-                        Toggle::make('status')->label('Status'),
-                        Toggle::make('is_default')->label('Default'),
+                        Toggle::make('is_rtl')->label(__('admin.is_rtl')),
+                        Toggle::make('status')->label(__('admin.status')),
+                        Toggle::make('is_default')->label(__('admin.default')),
                         
                         FileUpload::make('admin_json')
-                            ->label('Override Admin Translations (Optional)')
+                            ->label(__('admin.override_admin_translations_optional'))
                             ->disk('local')
                             ->directory('temp/translations')
                             ->acceptedFileTypes(['application/json']),
 
                         FileUpload::make('app_json')
-                            ->label('Override App Translations (Optional)')
+                            ->label(__('admin.override_app_translations_optional'))
                             ->disk('local')
                             ->directory('temp/translations')
                             ->acceptedFileTypes(['application/json']),
 
                         FileUpload::make('web_json')
-                            ->label('Override Web Translations (Optional)')
+                            ->label(__('admin.override_web_translations_optional'))
                             ->disk('local')
                             ->directory('temp/translations')
                             ->acceptedFileTypes(['application/json']),
@@ -276,21 +288,21 @@ class ManageLanguages extends Page implements HasForms, HasTable
                          if (!empty($data['web_json'])) {
                              $this->processUploadedFile($data['web_json'], $record->code, 'web.php');
                          }
-                         Notification::make()->title('Language updated successfully')->success()->send();
+                         Notification::make()->title(__('admin.language_updated_successfully'))->success()->send();
                     }),
                 
                 DeleteAction::make()
                     ->disabled(fn (Language $record) => $record->is_default),
 
-                Action::make('set_default')
-                    ->label('Set Default')
+                Action::make(__('admin.setdefault'))
+                    ->label(__('admin.set_default'))
                     ->icon('heroicon-o-star')
                     ->color('warning')
                     ->requiresConfirmation()
                     ->hidden(fn (Language $record) => $record->is_default)
                     ->action(function (Language $record) {
                         $record->update(['is_default' => true]);
-                        Notification::make()->title('Default language updated')->success()->send();
+                        Notification::make()->title(__('admin.default_language_updated'))->success()->send();
                     }),
             ]);
     }

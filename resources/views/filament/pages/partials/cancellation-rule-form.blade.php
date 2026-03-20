@@ -15,8 +15,8 @@
     <div>
         <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Is This Refundable? <span class="text-red-500">*</span></label>
         <select wire:model.live="is_refundable" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-            <option value="Yes, Refundable">Yes, Refundable</option>
-            <option value="Non - Refundable">Non - Refundable</option>
+            <option value="Yes, Refundable">{{ __('admin.yes_refundable') }}</option>
+            <option value="Non - Refundable">{{ __('admin.non_refundable') }}</option>
         </select>
         @error('is_refundable') <p class="mt-1 text-xs text-red-600 block">{{ $message }}</p> @enderror
     </div>

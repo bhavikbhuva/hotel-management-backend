@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Enums\CityStatus;
 use App\Filament\Actions\TableExportAction;
 use App\Models\City;
@@ -33,9 +35,15 @@ class CityManage extends Page implements HasTable
 
     protected static ?string $slug = 'cities';
 
-    protected static ?string $title = 'City Management';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.city_management');
+    }
 
-    protected static ?string $navigationLabel = 'City Manage';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.city_manage');
+    }
 
     protected static ?int $navigationSort = 2;
 
@@ -48,29 +56,29 @@ class CityManage extends Page implements HasTable
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Location & Policies';
+        return NavigationGroup::LocationPolicies;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'City Management';
+        return __('admin.city_management');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Manage city boundaries, states, and location services.';
+        return __('admin.manage_city_boundaries_states_and_location_services');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('addNewCity')
-                ->label('+ Add New City')
-                ->modalHeading('Add New City')
+            Action::make(__('admin.addnewcity'))
+                ->label(__('admin.add_new_city'))
+                ->modalHeading(__('admin.add_new_city'))
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalWidth('md')
-                ->modalSubmitActionLabel('Add City')
+                ->modalSubmitActionLabel(__('admin.add_city'))
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                 ->schema($this->getCityFormSchema())
@@ -81,7 +89,7 @@ class CityManage extends Page implements HasTable
                     app(CityService::class)->createCity($data, $user->current_country_id);
 
                     Notification::make()
-                        ->title('City created successfully.')
+                        ->title(__('admin.city_created_successfully'))
                         ->success()
                         ->send();
                 }),
@@ -99,14 +107,14 @@ class CityManage extends Page implements HasTable
             )
             ->columns([
                 TextColumn::make('name')
-                    ->label('City Name')
+                    ->label(__('admin.city_name'))
                     ->description(fn (City $record): string => strtoupper($record->country?->iso_code ?? ''))
                     ->searchable(),
                 TextColumn::make('state.name')
-                    ->label('State/Province')
+                    ->label(__('admin.stateprovince'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('latitude')
-                    ->label('Latitude')
+                    ->label(__('admin.latitude'))
                     ->formatStateUsing(function (string $state): string {
                         $value = (float) $state;
                         $direction = $value >= 0 ? 'N' : 'S';
@@ -115,7 +123,7 @@ class CityManage extends Page implements HasTable
                     })
                     ->color('info'),
                 TextColumn::make('longitude')
-                    ->label('Longitude')
+                    ->label(__('admin.longitude'))
                     ->formatStateUsing(function (string $state): string {
                         $value = (float) $state;
                         $direction = $value >= 0 ? 'E' : 'W';
@@ -124,7 +132,7 @@ class CityManage extends Page implements HasTable
                     })
                     ->color('info'),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->badge()
                     ->formatStateUsing(fn (CityStatus $state): string => $state->label())
                     ->color(fn (CityStatus $state): string => match ($state) {
@@ -134,22 +142,22 @@ class CityManage extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->options([
                         'active' => 'Active',
                         'inactive' => 'Inactive',
                     ]),
             ])
             ->recordActions([
-                Action::make('edit')
+                Action::make(__('admin.edit'))
                     ->icon('heroicon-o-pencil')
                     ->iconButton()
-                    ->tooltip('Edit')
-                    ->modalHeading('Edit City')
+                    ->tooltip(__('admin.edit'))
+                    ->modalHeading(__('admin.edit_city'))
                     ->stickyModalHeader()
                     ->stickyModalFooter()
                     ->modalWidth('md')
-                    ->modalSubmitActionLabel('Save City')
+                    ->modalSubmitActionLabel(__('admin.save_city'))
                     ->modalFooterActionsAlignment(Alignment::End)
                     ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                     ->mountUsing(function (Schema $form, City $record): void {
@@ -179,7 +187,7 @@ class CityManage extends Page implements HasTable
 
                             if ($activeCityCount <= 1) {
                                 Notification::make()
-                                    ->title('At least one active city is required.')
+                                    ->title(__('admin.at_least_one_active_city_is_required'))
                                     ->danger()
                                     ->send();
 
@@ -190,7 +198,7 @@ class CityManage extends Page implements HasTable
                         app(CityService::class)->updateCity($record, $data, $user->current_country_id);
 
                         Notification::make()
-                            ->title('City updated successfully.')
+                            ->title(__('admin.city_updated_successfully'))
                             ->success()
                             ->send();
                     }),
@@ -207,8 +215,8 @@ class CityManage extends Page implements HasTable
                     ])
                     ->toActionGroup(),
             ])
-            ->emptyStateHeading('No Cities Added Yet')
-            ->emptyStateDescription('Cities are used to help customers search and discover properties on the website. Add cities to improve location-based search results and user experience.')
+            ->emptyStateHeading(__('admin.no_cities_added_yet'))
+            ->emptyStateDescription(__('admin.cities_are_used_to_help_customers_search_and_discover_properties_on_the_website_add_cities_to_improve_locationbased_search_results_and_user_experience'))
             ->emptyStateIcon('heroicon-o-map-pin')
             ->defaultPaginationPageOption(4);
     }
@@ -277,7 +285,7 @@ class CityManage extends Page implements HasTable
         }
 
         $schema[] = Select::make('ref_state_id')
-            ->label('State / Province')
+            ->label(__('admin.state_province'))
             ->options(fn (): Collection => RefState::query()
                 ->where('country_id', $refCountryId)
                 ->orderBy('name')
@@ -294,7 +302,7 @@ class CityManage extends Page implements HasTable
         $schema[] = Grid::make(1)
             ->schema(fn (Get $get): array => [
                 Select::make('ref_city_id')
-                    ->label('City')
+                    ->label(__('admin.city'))
                     ->options(function () use ($get, $addedRefCityIds, $addedStateAsCityRefStateIds): Collection {
                         $stateId = $get('ref_state_id');
                         if (! $stateId) {
@@ -356,19 +364,19 @@ class CityManage extends Page implements HasTable
         $schema[] = Grid::make(2)
             ->schema([
                 \Filament\Forms\Components\TextInput::make('latitude')
-                    ->label('Latitude')
+                    ->label(__('admin.latitude'))
                     ->numeric()
                     ->disabled()
                     ->dehydrated(),
                 \Filament\Forms\Components\TextInput::make('longitude')
-                    ->label('Longitude')
+                    ->label(__('admin.longitude'))
                     ->numeric()
                     ->disabled()
                     ->dehydrated(),
             ]);
 
         $schema[] = Radio::make('status')
-            ->label('Status')
+            ->label(__('admin.status'))
             ->options([
                 'active' => 'Active',
                 'inactive' => 'Inactive',

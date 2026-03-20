@@ -8,7 +8,7 @@
                 style="{{ $currentTab === 'blogs' ? 'background-color: #2563eb; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1);' : 'color: #4b5563;' }}"
             >
                 <x-heroicon-o-queue-list class="h-4 w-4" />
-                All Blogs
+                {{ __('admin.all_blogs') }}
             </button>
 
             <button
@@ -17,7 +17,7 @@
                 style="{{ $currentTab === 'categories' ? 'background-color: #2563eb; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1);' : 'color: #4b5563;' }}"
             >
                 <x-heroicon-o-tag class="h-4 w-4" />
-                Categories
+                {{ __('admin.categories') }}
             </button>
         </div>
 
@@ -42,7 +42,7 @@
                     </div>
 
                     <h4 class="text-base font-semibold text-gray-950 dark:text-white">
-                        No Blogs Published Yet
+                        {{ __('admin.no_blogs_published_yet') }}
                     </h4>
                     <p class="max-w-md text-sm text-gray-500 dark:text-gray-400">
                         Start creating content to educate users, improve SEO, and promote your platform.

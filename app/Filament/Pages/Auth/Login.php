@@ -25,7 +25,7 @@ class Login extends BaseLogin
 
     public function getHeading(): string|Htmlable|null
     {
-        return 'BookingHub Admin';
+        return __('admin.bookinghub_admin');
     }
 
     public function getSubheading(): string|Htmlable|null
@@ -34,14 +34,14 @@ class Login extends BaseLogin
             return parent::getSubheading();
         }
 
-        return 'Sign in to access the admin panel.';
+        return __('admin.sign_in_to_access_the_admin_panel');
     }
 
     protected function getEmailFormComponent(): Component
     {
         return parent::getEmailFormComponent()
             ->prefixIcon('heroicon-m-envelope')
-            ->placeholder('e.g. JackWilliams11@gmail.com');
+            ->placeholder(__('admin.eg_jackwilliams11gmailcom'));
     }
 
     protected function getPasswordFormComponent(): Component

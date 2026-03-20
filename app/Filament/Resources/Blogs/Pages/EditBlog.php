@@ -19,20 +19,20 @@ class EditBlog extends EditRecord
 
     public function getHeading(): string|Htmlable
     {
-        return 'Edit Blog';
+        return __('admin.edit_blog');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('saveDraft')
-                ->label('Save Draft')
+            Action::make(__('admin.savedraft'))
+                ->label(__('admin.save_draft'))
                 ->color('gray')
                 ->action(function (): void {
                     $this->updateBlog(BlogStatus::Draft->value);
                 }),
-            Action::make('publish')
-                ->label('Publish')
+            Action::make(__('admin.publish'))
+                ->label(__('admin.publish'))
                 ->action(function (): void {
                     $this->updateBlog(BlogStatus::Published->value);
                 }),
@@ -56,8 +56,8 @@ class EditBlog extends EditRecord
 
             if ($category && $category->status === BlogCategoryStatus::Draft) {
                 Notification::make()
-                    ->title('Cannot publish this blog.')
-                    ->body('The selected category is still in draft. Publish the category first.')
+                    ->title(__('admin.cannot_publish_this_blog'))
+                    ->body(__('admin.the_selected_category_is_still_in_draft_publish_the_category_first'))
                     ->danger()
                     ->send();
 

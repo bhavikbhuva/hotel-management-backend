@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Blogs;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Filament\Resources\Blogs\Pages\CreateBlog;
 use App\Filament\Resources\Blogs\Pages\EditBlog;
 use App\Filament\Resources\Blogs\Pages\ListBlogs;
@@ -19,7 +21,10 @@ class BlogResource extends Resource
 
     protected static ?string $slug = 'blogs';
 
-    protected static ?string $navigationLabel = 'Blogs';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.blogs');
+    }
 
     protected static ?int $navigationSort = 4;
 
@@ -30,7 +35,7 @@ class BlogResource extends Resource
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Content Management';
+        return NavigationGroup::ContentManagement;
     }
 
     public static function form(Schema $schema): Schema

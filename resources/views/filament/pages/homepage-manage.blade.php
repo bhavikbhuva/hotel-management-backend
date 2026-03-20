@@ -24,9 +24,9 @@
                 </div>
 
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">About Us</h4>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.about_us') }}</h4>
                     <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                        Manage the introduction content that defines your brand and experience.
+                        {{ __('admin.manage_the_introduction_content_that_defines_your_brand_and_experience') }}
                     </p>
                 </div>
 
@@ -130,16 +130,16 @@
                                     <div class="mb-3 w-1/2 overflow-hidden rounded-lg border border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-gray-800">
                                         <img src="{{ $aboutImageUpload->temporaryUrl() }}" alt="Image preview" class="max-h-40 w-full object-contain" />
                                         <div class="flex items-center justify-between border-t border-blue-200 px-3 py-2 dark:border-blue-700">
-                                            <p class="text-xs text-blue-600 dark:text-blue-400">New image selected — click Save Changes to apply</p>
-                                            <button type="button" onclick="document.getElementById('about_image_input').click()" class="text-xs font-medium text-gray-600 underline hover:text-gray-800 dark:text-gray-400">Change</button>
+                                            <p class="text-xs text-blue-600 dark:text-blue-400">{{ __('admin.new_image_selected_click_save_changes_to_apply') }}</p>
+                                            <button type="button" onclick="document.getElementById('about_image_input').click()" class="text-xs font-medium text-gray-600 underline hover:text-gray-800 dark:text-gray-400">{{ __('admin.change') }}</button>
                                         </div>
                                     </div>
                                 @elseif ($about_image)
                                     <div class="mb-3 w-1/2 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
                                         <img src="{{ asset('storage/' . $about_image) }}" alt="About Us Image" class="max-h-40 w-full object-contain" />
                                         <div class="flex items-center justify-between border-t border-gray-200 px-3 py-2 dark:border-gray-700">
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">Current image</p>
-                                            <button type="button" onclick="document.getElementById('about_image_input').click()" class="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400">Change Image</button>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('admin.current_image') }}</p>
+                                            <button type="button" onclick="document.getElementById('about_image_input').click()" class="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400">{{ __('admin.change_image') }}</button>
                                         </div>
                                     </div>
                                 @else
@@ -148,8 +148,8 @@
                                         onclick="document.getElementById('about_image_input').click()"
                                     >
                                         <x-heroicon-o-arrow-up-tray class="mb-2 h-7 w-7 text-gray-400" />
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Click to upload image</p>
-                                        <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">PNG or SVG · Max 2MB</p>
+                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('admin.click_to_upload_image') }}</p>
+                                        <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{{ __('admin.png_or_svg_max_2mb') }}</p>
                                     </div>
                                 @endif
 
@@ -158,8 +158,8 @@
                                 @enderror
 
                                 <div class="mt-1 flex justify-between text-xs text-gray-400 dark:text-gray-500">
-                                    <span>Maximum Size: 770PX width and 600PX Height</span>
-                                    <span>Supported Files: PNG/SVG</span>
+                                    <span>{{ __('admin.maximum_size_770px_width_and_600px_height') }}</span>
+                                    <span>{{ __('admin.supported_files_pngsvg') }}</span>
                                 </div>
                             </div>
 
@@ -167,7 +167,7 @@
 
                         <div class="mt-6">
                             <button type="submit" class="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Save Changes
+                                {{ __('admin.save_changes') }}
                             </button>
                         </div>
                     </form>
@@ -197,9 +197,9 @@
                 </div>
 
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Amenities &amp; Facilities</h4>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.amenities_amp_facilities') }}</h4>
                     <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                        Choose which amenities should appear as featured highlights for guests.
+                        {{ __('admin.choose_which_amenities_should_appear_as_featured_highlights_for_guests') }}
                     </p>
                 </div>
 
@@ -284,7 +284,7 @@
                                         class="flex min-h-[44px] cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                                     >
                                         <template x-if="selected.length === 0">
-                                            <span class="text-sm text-gray-400 dark:text-gray-500">Select Facilities</span>
+                                            <span class="text-sm text-gray-400 dark:text-gray-500">{{ __('admin.select_facilities') }}</span>
                                         </template>
 
                                         <template x-for="id in selected" :key="id">
@@ -367,7 +367,7 @@
                                         </template>
 
                                         <template x-if="Object.keys(groupedFiltered).length === 0">
-                                            <p class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">No facilities found.</p>
+                                            <p class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">{{ __('admin.no_facilities_found') }}</p>
                                         </template>
                                     </div>
 
@@ -427,7 +427,7 @@
 
                         <div class="mt-6">
                             <button type="submit" class="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Save Changes
+                                {{ __('admin.save_changes') }}
                             </button>
                         </div>
                     </form>
@@ -453,9 +453,9 @@
                     />
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Guest Reviews</h4>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.guest_reviews') }}</h4>
                     <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                        Control which guest reviews are highlighted on your homepage.
+                        {{ __('admin.control_which_guest_reviews_are_highlighted_on_your_homepage') }}
                     </p>
                 </div>
                 <div
@@ -519,7 +519,7 @@
                                     class="flex min-h-[8rem] cursor-pointer flex-col items-center justify-start rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50 px-6 pt-5 pb-5 text-center transition hover:border-blue-400 hover:bg-blue-100/70 dark:border-gray-600 dark:bg-gray-800/50 dark:hover:border-gray-500 dark:hover:bg-gray-800"
                                     x-on:click="$dispatch('open-modal', { id: 'add-reviews-modal' })"
                                 >
-                                    <p class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-300">Add Reviews for the Highlight in Homepage.</p>
+                                    <p class="mb-4 text-sm font-medium text-gray-600 dark:text-gray-300">{{ __('admin.add_reviews_for_the_highlight_in_homepage') }}</p>
                                     <div class="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
                                         Add Reviews
                                         <x-heroicon-o-plus-circle class="h-5 w-5"/>
@@ -531,7 +531,7 @@
 
                         <div class="mt-6">
                             <button type="submit" class="inline-flex items-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-                                Save Changes
+                                {{ __('admin.save_changes') }}
                             </button>
                         </div>
                     </form>
@@ -548,7 +548,7 @@
 
         <div class="mb-4 flex flex-col gap-3 sm:flex-row">
             <div class="flex-1">
-                <label class="sr-only">Search Reviews</label>
+                <label class="sr-only">{{ __('admin.search_reviews') }}</label>
                 <input 
                     type="text" 
                     wire:model.live.debounce.300ms="reviewSearch" 
@@ -557,17 +557,17 @@
                 >
             </div>
             <div class="w-full shrink-0 sm:w-40">
-                <label class="sr-only">Filter by Stars</label>
+                <label class="sr-only">{{ __('admin.filter_by_stars') }}</label>
                 <select 
                     wire:model.live="reviewStarsFilter"
                     class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 shadow-sm transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 >
-                    <option value="">All Ratings</option>
-                    <option value="5">5 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="2">2 Stars</option>
-                    <option value="1">1 Star</option>
+                    <option value="">{{ __('admin.all_ratings') }}</option>
+                    <option value="5">{{ __('admin.5_stars') }}</option>
+                    <option value="4">{{ __('admin.4_stars') }}</option>
+                    <option value="3">{{ __('admin.3_stars') }}</option>
+                    <option value="2">{{ __('admin.2_stars') }}</option>
+                    <option value="1">{{ __('admin.1_star') }}</option>
                 </select>
             </div>
         </div>
@@ -627,7 +627,7 @@
                     </div>
                 @empty
                     <div class="col-span-1 py-10 text-center text-sm text-gray-500 lg:col-span-2">
-                        No reviews found matching your search.
+                        {{ __('admin.no_reviews_found_matching_your_search') }}
                     </div>
                 @endforelse
             </div>

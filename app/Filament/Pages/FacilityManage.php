@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Models\Facility;
 use App\Models\FacilityCategory;
 use App\Services\FacilityCategoryService;
@@ -20,9 +22,15 @@ class FacilityManage extends Page
 {
     protected static ?string $slug = 'facilities';
 
-    protected static ?string $title = 'Facilities & Amenities';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.facilities_amenities');
+    }
 
-    protected static ?string $navigationLabel = 'Facilities & Amenities';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.facilities_amenities');
+    }
 
     protected static ?int $navigationSort = 3;
 
@@ -37,17 +45,17 @@ class FacilityManage extends Page
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Property Management';
+        return NavigationGroup::PropertyManagement;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'Facilities & Amenities';
+        return __('admin.facilities_amenities');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Manage property facilities and amenities.';
+        return __('admin.manage_property_facilities_and_amenities');
     }
 
     public function getBreadcrumbs(): array
@@ -62,13 +70,13 @@ class FacilityManage extends Page
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('addCategory')
-                ->label('+ Add Facility Category')
-                ->modalHeading('Add New Facility Category')
+            Action::make(__('admin.addcategory'))
+                ->label(__('admin.add_facility_category'))
+                ->modalHeading(__('admin.add_new_facility_category'))
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalWidth('lg')
-                ->modalSubmitActionLabel('Create Category')
+                ->modalSubmitActionLabel(__('admin.create_category'))
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                 ->schema($this->getCategoryFormSchema())
@@ -76,7 +84,7 @@ class FacilityManage extends Page
                     app(FacilityCategoryService::class)->createCategory($data);
 
                     Notification::make()
-                        ->title('Category created successfully.')
+                        ->title(__('admin.category_created_successfully'))
                         ->success()
                         ->send();
                 }),
@@ -89,15 +97,15 @@ class FacilityManage extends Page
 
     public function editCategoryAction(): Action
     {
-        return Action::make('editCategory')
+        return Action::make(__('admin.editcategory'))
             ->iconButton()
             ->icon('heroicon-o-pencil')
             ->color('gray')
-            ->modalHeading('Edit Facility Category')
+            ->modalHeading(__('admin.edit_facility_category'))
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Save Changes')
+            ->modalSubmitActionLabel(__('admin.save_changes'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getCategoryFormSchema())
@@ -120,7 +128,7 @@ class FacilityManage extends Page
                 app(FacilityCategoryService::class)->updateCategory($category, $data);
 
                 Notification::make()
-                    ->title('Category updated successfully.')
+                    ->title(__('admin.category_updated_successfully'))
                     ->success()
                     ->send();
             });
@@ -128,15 +136,15 @@ class FacilityManage extends Page
 
     public function deleteCategoryAction(): Action
     {
-        return Action::make('deleteCategory')
+        return Action::make(__('admin.deletecategory'))
             ->iconButton()
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
             ->modalIcon('heroicon-o-trash')
-            ->modalHeading('Delete Category?')
-            ->modalDescription('Are you sure you want to delete this category? This action cannot be undone.')
-            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalHeading(__('admin.delete_category'))
+            ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_category_this_action_cannot_be_undone'))
+            ->modalSubmitActionLabel(__('admin.yes_delete'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->action(function (array $arguments): void {
@@ -150,12 +158,12 @@ class FacilityManage extends Page
                     app(FacilityCategoryService::class)->deleteCategory($category);
 
                     Notification::make()
-                        ->title('Category deleted successfully.')
+                        ->title(__('admin.category_deleted_successfully'))
                         ->success()
                         ->send();
                 } catch (\Exception $e) {
                     Notification::make()
-                        ->title('Cannot delete category')
+                        ->title(__('admin.cannot_delete_category'))
                         ->body($e->getMessage())
                         ->danger()
                         ->send();
@@ -169,8 +177,8 @@ class FacilityManage extends Page
 
     public function addFacilityAction(): Action
     {
-        return Action::make('addFacility')
-            ->label('+ Add Amenity')
+        return Action::make(__('admin.addfacility'))
+            ->label(__('admin.add_amenity'))
             ->color('dark')
             ->modalHeading(function (array $arguments): string {
                 $category = FacilityCategory::find($arguments['category']);
@@ -180,7 +188,7 @@ class FacilityManage extends Page
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Create Facility')
+            ->modalSubmitActionLabel(__('admin.create_facility'))
             ->modalSubmitAction(fn (Action $action) => $action->color('primary'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
@@ -195,7 +203,7 @@ class FacilityManage extends Page
                 app(FacilityService::class)->createFacility($categoryId, $data);
 
                 Notification::make()
-                    ->title('Facility created successfully.')
+                    ->title(__('admin.facility_created_successfully'))
                     ->success()
                     ->send();
             });
@@ -203,7 +211,7 @@ class FacilityManage extends Page
 
     public function editFacilityAction(): Action
     {
-        return Action::make('editFacility')
+        return Action::make(__('admin.editfacility'))
             ->iconButton()
             ->icon('heroicon-o-pencil')
             ->color('gray')
@@ -215,7 +223,7 @@ class FacilityManage extends Page
             ->stickyModalHeader()
             ->stickyModalFooter()
             ->modalWidth('lg')
-            ->modalSubmitActionLabel('Save Changes')
+            ->modalSubmitActionLabel(__('admin.save_changes'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
             ->schema($this->getFacilityFormSchema())
@@ -238,7 +246,7 @@ class FacilityManage extends Page
                 app(FacilityService::class)->updateFacility($facility, $data);
 
                 Notification::make()
-                    ->title('Facility updated successfully.')
+                    ->title(__('admin.facility_updated_successfully'))
                     ->success()
                     ->send();
             });
@@ -246,15 +254,15 @@ class FacilityManage extends Page
 
     public function deleteFacilityAction(): Action
     {
-        return Action::make('deleteFacility')
+        return Action::make(__('admin.deletefacility'))
             ->iconButton()
             ->icon('heroicon-o-trash')
             ->color('danger')
             ->requiresConfirmation()
             ->modalIcon('heroicon-o-trash')
-            ->modalHeading('Delete Amenities & Facilities')
-            ->modalDescription('Are you sure you want to delete this facility or amenity? Deleting this facility or amenity will remove it from all associated properties permanently.')
-            ->modalSubmitActionLabel('Yes, Delete')
+            ->modalHeading(__('admin.delete_amenities_facilities'))
+            ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_facility_or_amenity_deleting_this_facility_or_amenity_will_remove_it_from_all_associated_properties_permanently'))
+            ->modalSubmitActionLabel(__('admin.yes_delete'))
             ->modalSubmitAction(fn (Action $action) => $action->color('danger'))
             ->modalFooterActionsAlignment(Alignment::End)
             ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
@@ -268,7 +276,7 @@ class FacilityManage extends Page
                 app(FacilityService::class)->deleteFacility($facility);
 
                 Notification::make()
-                    ->title('Facility deleted successfully.')
+                    ->title(__('admin.facility_deleted_successfully'))
                     ->success()
                     ->send();
             });
@@ -320,23 +328,23 @@ class FacilityManage extends Page
     {
         return [
             FileUpload::make('icon')
-                ->label('Facility Category Icon')
+                ->label(__('admin.facility_category_icon'))
                 ->disk('public')
                 ->directory('facility-categories')
                 ->visibility('public')
                 ->maxSize(5120)
                 ->acceptedFileTypes(['image/png', 'image/svg+xml'])
-                ->helperText('Maximum Size: 5MB | Supported Files: PNG/SVG')
+                ->helperText(__('admin.maximum_size_5mb_supported_files_pngsvg'))
                 ->required()
                 ->columnSpanFull(),
             TextInput::make('name')
-                ->label('Category Name')
-                ->placeholder('Enter Category Name')
+                ->label(__('admin.category_name'))
+                ->placeholder(__('admin.enter_category_name'))
                 ->required()
                 ->maxLength(255)
                 ->columnSpanFull(),
             Radio::make('status')
-                ->label('Status')
+                ->label(__('admin.status'))
                 ->options([
                     'active' => 'Active',
                     'inactive' => 'Inactive',
@@ -355,23 +363,23 @@ class FacilityManage extends Page
     {
         return [
             FileUpload::make('icon')
-                ->label('Facility Icon')
+                ->label(__('admin.facility_icon'))
                 ->disk('public')
                 ->directory('facilities')
                 ->visibility('public')
                 ->maxSize(5120)
                 ->acceptedFileTypes(['image/png', 'image/svg+xml'])
-                ->helperText('Maximum Size: 5MB | Supported Files: PNG/SVG')
+                ->helperText(__('admin.maximum_size_5mb_supported_files_pngsvg'))
                 ->required()
                 ->columnSpanFull(),
             TextInput::make('name')
-                ->label('Facility Name')
-                ->placeholder('Enter Facility Name')
+                ->label(__('admin.facility_name'))
+                ->placeholder(__('admin.enter_facility_name'))
                 ->required()
                 ->maxLength(255)
                 ->columnSpanFull(),
             Radio::make('status')
-                ->label('Status')
+                ->label(__('admin.status'))
                 ->options([
                     'active' => 'Active',
                     'inactive' => 'Inactive',

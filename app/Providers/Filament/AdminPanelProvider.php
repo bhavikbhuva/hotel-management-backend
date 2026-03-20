@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Enums\NavigationGroup as NavGroupEnum;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\EnsureSetupIsCompleted;
 use App\Http\Middleware\FilamentAuthenticate;
@@ -47,23 +48,30 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchFieldKeyBindingSuffix()
             ->topbarLivewireComponent(Topbar::class)
             ->navigationGroups([
-                NavigationGroup::make('Property Management')
+                NavigationGroup::fromEnum($g1 = NavGroupEnum::PropertyManagement)
+                    ->label(fn () => $g1->getLabel())
                     ->icon(Heroicon::OutlinedBuildingOffice2),
-                NavigationGroup::make('Content Management')
+                NavigationGroup::fromEnum($g2 = NavGroupEnum::ContentManagement)
+                    ->label(fn () => $g2->getLabel())
                     ->icon(Heroicon::OutlinedDocumentText),
-                NavigationGroup::make('Marketing')
+                NavigationGroup::fromEnum($g3 = NavGroupEnum::Marketing)
+                    ->label(fn () => $g3->getLabel())
                     ->icon(Heroicon::OutlinedMegaphone),
-                NavigationGroup::make('Location & Policies')
+                NavigationGroup::fromEnum($g4 = NavGroupEnum::LocationPolicies)
+                    ->label(fn () => $g4->getLabel())
                     ->icon(Heroicon::OutlinedMapPin),
+                NavigationGroup::fromEnum($g5 = NavGroupEnum::Settings)
+                    ->label(fn () => $g5->getLabel())
+                    ->icon(Heroicon::OutlinedCog6Tooth),
             ])
             ->userMenuItems([
                 Action::make('profile')
-                    ->label('My Profile')
+                    ->label(__('admin.my_profile'))
                     ->url('/admin-profile')
                     ->icon(Heroicon::OutlinedUser)
                     ->sort(-1),
                 'logout' => Action::make('logout')
-                    ->label('Log Out')
+                    ->label(__('admin.log_out'))
                     ->color('danger')
                     ->icon(Heroicon::ArrowLeftEndOnRectangle)
                     ->url(fn (): string => Filament::getLogoutUrl())

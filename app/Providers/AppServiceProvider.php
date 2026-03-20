@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->extend('translation.loader', function ($loader, $app) {
+            return new \App\Translation\JsonGroupFileLoader($app['files'], $app['path.lang']);
+        });
     }
 
     /**
@@ -19,8 +21,5 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->extend('translation.loader', function ($loader, $app) {
-            return new \App\Translation\JsonGroupFileLoader($app['files'], $app['path.lang']);
-        });
     }
 }

@@ -23,26 +23,26 @@ class BlogsTable
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->label('SR. NO')
+                    ->label(__('admin.sr_no'))
                     ->sortable(),
                 ImageColumn::make('cover_image')
-                    ->label('IMAGE')
+                    ->label(__('admin.image'))
                     ->disk('public')
                     ->square()
                     ->size(60),
                 TextColumn::make('title')
-                    ->label('BLOG TITLE')
+                    ->label(__('admin.blog_title'))
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('category.name')
-                    ->label('BLOG CATEGORY')
+                    ->label(__('admin.blog_category'))
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('CREATED DATE')
+                    ->label(__('admin.created_date'))
                     ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('status')
-                    ->label('STATUS')
+                    ->label(__('admin.status'))
                     ->badge()
                     ->formatStateUsing(fn (BlogStatus $state): string => $state->label())
                     ->color(fn (BlogStatus $state): string => match ($state) {
@@ -52,17 +52,17 @@ class BlogsTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
                     ]),
                 SelectFilter::make('blog_category_id')
-                    ->label('Category')
+                    ->label(__('admin.category'))
                     ->relationship('category', 'name'),
             ])
             ->recordActions([
-                Action::make('view')
+                Action::make(__('admin.view'))
                     ->iconButton()
                     ->icon('heroicon-o-eye')
                     ->color('gray')
@@ -72,28 +72,28 @@ class BlogsTable
                     ->modalWidth('5xl')
                     ->modalContent(fn (Blog $record) => view('filament.pages.blogs.view-blog', ['blog' => $record]))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
+                    ->modalCancelActionLabel(__('admin.close')),
                 EditAction::make()
                     ->iconButton()
                     ->icon('heroicon-o-pencil')
                     ->color('gray')
                     ->url(fn (Blog $record): string => BlogResource::getUrl('edit', ['record' => $record])),
-                Action::make('delete')
+                Action::make(__('admin.delete'))
                     ->iconButton()
                     ->icon('heroicon-o-trash')
                     ->color('gray')
                     ->requiresConfirmation()
                     ->modalIcon('heroicon-o-trash')
-                    ->modalHeading('Delete Blog?')
-                    ->modalDescription('Are you sure you want to delete this blog? This action can be undone.')
-                    ->modalSubmitActionLabel('Yes, Delete')
+                    ->modalHeading(__('admin.delete_blog'))
+                    ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_blog_this_action_can_be_undone'))
+                    ->modalSubmitActionLabel(__('admin.yes_delete'))
                     ->modalFooterActionsAlignment(Alignment::End)
                     ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                     ->action(function (Blog $record): void {
                         app(BlogService::class)->deleteBlog($record);
 
                         Notification::make()
-                            ->title('Blog deleted successfully.')
+                            ->title(__('admin.blog_deleted_successfully'))
                             ->success()
                             ->send();
                     }),
@@ -108,12 +108,12 @@ class BlogsTable
                         'created_at' => ['label' => 'Created Date', 'formatter' => fn (Blog $record): string => $record->created_at->format('d M Y')],
                     ])
                     ->toActionGroup(),
-                Action::make('createNewBlog')
-                    ->label('+ Create New Blog')
+                Action::make(__('admin.createnewblog'))
+                    ->label(__('admin.create_new_blog'))
                     ->url(fn () => BlogResource::getUrl('create')),
             ])
-            ->emptyStateHeading('No Blogs Published Yet')
-            ->emptyStateDescription("Start creating content to educate users, improve SEO, and promote your platform.\nYour published blogs will appear here once added.")
+            ->emptyStateHeading(__('admin.no_blogs_published_yet'))
+            ->emptyStateDescription(__('admin.start_creating_content_to_educate_users_improve_seo_and_promote_your_platformnyour_published_blogs_will_appear_here_once_added'))
             ->emptyStateIcon('heroicon-o-queue-list')
             ->defaultPaginationPageOption(10)
             ->queryStringIdentifier('blogs');

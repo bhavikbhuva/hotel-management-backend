@@ -26,13 +26,13 @@
 
     {{-- Short Description --}}
     <div class="text-center">
-        <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Short Description</h4>
+        <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.short_description') }}</h4>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $blog->short_description }}</p>
     </div>
 
     {{-- Main Content --}}
     <div>
-        <h4 class="text-center text-sm font-semibold text-gray-950 dark:text-white">Content</h4>
+        <h4 class="text-center text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.content') }}</h4>
         <div class="prose prose-sm dark:prose-invert mt-2 mx-auto max-w-none">
             {!! $blog->content !!}
         </div>
@@ -40,18 +40,18 @@
 
     {{-- SEO Info --}}
     <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-        <h4 class="text-center text-sm font-semibold text-gray-950 dark:text-white">SEO Configuration</h4>
+        <h4 class="text-center text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.seo_configuration') }}</h4>
         <div class="mt-3 space-y-2 text-center text-sm">
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Meta Title:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('admin.meta_title') }}</span>
                 <span class="text-gray-600 dark:text-gray-400">{{ $blog->meta_title }}</span>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Meta Description:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('admin.meta_description') }}</span>
                 <span class="text-gray-600 dark:text-gray-400">{{ $blog->meta_description }}</span>
             </div>
             <div>
-                <span class="font-medium text-gray-700 dark:text-gray-300">Keywords:</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">{{ __('admin.keywords') }}</span>
                 <span class="text-gray-600 dark:text-gray-400">{{ $blog->keywords }}</span>
             </div>
         </div>

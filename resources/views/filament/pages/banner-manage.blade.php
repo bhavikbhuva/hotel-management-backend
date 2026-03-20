@@ -9,7 +9,7 @@
                 </div>
 
                 <h4 class="text-base font-semibold text-gray-950 dark:text-white">
-                    You haven't added any banners yet.
+                    {{ __('admin.you_havent_added_any_banners_yet') }}
                 </h4>
                 <p class="max-w-md text-sm text-gray-500 dark:text-gray-400">
                     Banners are displayed as sliders on the App and Web home screens. Add banners

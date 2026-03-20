@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Models\WhoWeAre;
 use App\Models\KeyHighlight;
 use App\Models\OurPromise;
@@ -17,9 +19,15 @@ class AboutManage extends Page
 
     protected static ?string $slug = 'manage-about';
 
-    protected static ?string $title = 'About Page Management';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.about_page_management');
+    }
 
-    protected static ?string $navigationLabel = 'About Page';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.about_page');
+    }
 
     protected static ?int $navigationSort = 3;
 
@@ -49,12 +57,12 @@ class AboutManage extends Page
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Content Management';
+        return NavigationGroup::ContentManagement;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'About Page Management';
+        return __('admin.about_page_management');
     }
 
     public function getSubheading(): ?string
@@ -158,7 +166,7 @@ class AboutManage extends Page
         ]);
 
         Notification::make()
-            ->title('Who We Are section saved successfully.')
+            ->title(__('admin.who_we_are_section_saved_successfully'))
             ->success()
             ->send();
     }
@@ -191,7 +199,7 @@ class AboutManage extends Page
         }
 
         Notification::make()
-            ->title('Key Highlights saved successfully.')
+            ->title(__('admin.key_highlights_saved_successfully'))
             ->success()
             ->send();
     }
@@ -218,7 +226,7 @@ class AboutManage extends Page
         $this->promise_features = empty($cleanedFeatures) ? [''] : $cleanedFeatures;
 
         Notification::make()
-            ->title('Our Promise section saved successfully.')
+            ->title(__('admin.our_promise_section_saved_successfully'))
             ->success()
             ->send();
     }

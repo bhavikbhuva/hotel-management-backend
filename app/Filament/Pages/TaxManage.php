@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Enums\TaxStatus;
 use App\Enums\TaxType;
 use App\Filament\Actions\TableExportAction;
@@ -30,9 +32,15 @@ class TaxManage extends Page implements HasTable
 
     protected static ?string $slug = 'taxes';
 
-    protected static ?string $title = 'Tax Management';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.tax_management');
+    }
 
-    protected static ?string $navigationLabel = 'Tax Manage';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.tax_manage');
+    }
 
     protected static ?int $navigationSort = 3;
 
@@ -45,29 +53,29 @@ class TaxManage extends Page implements HasTable
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Location & Policies';
+        return NavigationGroup::LocationPolicies;
     }
 
     public function getHeading(): string|Htmlable
     {
-        return 'Tax Management';
+        return __('admin.tax_management');
     }
 
     public function getSubheading(): ?string
     {
-        return 'Configure taxes based on applicable regulations.';
+        return __('admin.configure_taxes_based_on_applicable_regulations');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('addNewTax')
-                ->label('+ Add New Tax')
-                ->modalHeading('Add New Tax')
+            Action::make(__('admin.addnewtax'))
+                ->label(__('admin.add_new_tax'))
+                ->modalHeading(__('admin.add_new_tax'))
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalWidth('md')
-                ->modalSubmitActionLabel('Save Tax')
+                ->modalSubmitActionLabel(__('admin.save_tax'))
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                 ->schema($this->getTaxFormSchema())
@@ -78,7 +86,7 @@ class TaxManage extends Page implements HasTable
                     app(TaxService::class)->createTax($data, $user->current_country_id);
 
                     Notification::make()
-                        ->title('Tax created successfully.')
+                        ->title(__('admin.tax_created_successfully'))
                         ->success()
                         ->send();
                 }),
@@ -96,14 +104,14 @@ class TaxManage extends Page implements HasTable
             )
             ->columns([
                 TextColumn::make('name')
-                    ->label('Tax Name')
+                    ->label(__('admin.tax_name'))
                     ->description(fn (Tax $record): string => 'ID - '.str_pad((string) $record->id, 2, '0', STR_PAD_LEFT))
                     ->searchable(),
                 TextColumn::make('description')
-                    ->label('Description')
+                    ->label(__('admin.description'))
                     ->limit(40),
                 TextColumn::make('type')
-                    ->label('Type')
+                    ->label(__('admin.type'))
                     ->badge()
                     ->formatStateUsing(fn (TaxType $state): string => $state->label())
                     ->color(fn (TaxType $state): string => match ($state) {
@@ -111,7 +119,7 @@ class TaxManage extends Page implements HasTable
                         TaxType::Fixed => 'warning',
                     }),
                 TextColumn::make('value')
-                    ->label('Value')
+                    ->label(__('admin.value'))
                     ->formatStateUsing(function (Tax $record): string {
                         if ($record->type === TaxType::Percentage) {
                             return rtrim(rtrim(number_format((float) $record->value, 4), '0'), '.').'%';
@@ -122,7 +130,7 @@ class TaxManage extends Page implements HasTable
                         return $symbol.rtrim(rtrim(number_format((float) $record->value, 4), '0'), '.');
                     }),
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->badge()
                     ->formatStateUsing(fn (TaxStatus $state): string => $state->label())
                     ->color(fn (TaxStatus $state): string => match ($state) {
@@ -132,7 +140,7 @@ class TaxManage extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->options([
                         'active' => 'Active',
                         'inactive' => 'Inactive',
@@ -140,14 +148,14 @@ class TaxManage extends Page implements HasTable
             ])
             ->recordActions([
                 ActionGroup::make([
-                    Action::make('edit')
-                        ->label('Edit')
+                    Action::make(__('admin.edit'))
+                        ->label(__('admin.edit'))
                         ->icon('heroicon-o-pencil')
-                        ->modalHeading('Edit Tax')
+                        ->modalHeading(__('admin.edit_tax'))
                         ->stickyModalHeader()
                         ->stickyModalFooter()
                         ->modalWidth('md')
-                        ->modalSubmitActionLabel('Save Tax')
+                        ->modalSubmitActionLabel(__('admin.save_tax'))
                         ->modalFooterActionsAlignment(Alignment::End)
                         ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                         ->fillForm(fn (Tax $record): array => [
@@ -162,12 +170,12 @@ class TaxManage extends Page implements HasTable
                             app(TaxService::class)->updateTax($record, $data);
 
                             Notification::make()
-                                ->title('Tax updated successfully.')
+                                ->title(__('admin.tax_updated_successfully'))
                                 ->success()
                                 ->send();
                         }),
-                    Action::make('delete')
-                        ->label('Delete')
+                    Action::make(__('admin.delete'))
+                        ->label(__('admin.delete'))
                         ->icon('heroicon-o-trash')
                         ->color('danger')
                         ->disabled(function (): bool {
@@ -188,16 +196,16 @@ class TaxManage extends Page implements HasTable
                         })
                         ->requiresConfirmation()
                         ->modalIcon('heroicon-o-trash')
-                        ->modalHeading('Delete Tax?')
-                        ->modalDescription('Are you sure you want to delete? This tax will no longer be applied to future bookings.')
-                        ->modalSubmitActionLabel('Yes, Delete')
+                        ->modalHeading(__('admin.delete_tax'))
+                        ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_tax_will_no_longer_be_applied_to_future_bookings'))
+                        ->modalSubmitActionLabel(__('admin.yes_delete'))
                         ->modalFooterActionsAlignment(Alignment::End)
                         ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                         ->action(function (Tax $record): void {
                             app(TaxService::class)->deleteTax($record);
 
                             Notification::make()
-                                ->title('Tax deleted successfully.')
+                                ->title(__('admin.tax_deleted_successfully'))
                                 ->success()
                                 ->send();
                         }),
@@ -233,15 +241,15 @@ class TaxManage extends Page implements HasTable
     {
         return [
             TextInput::make('name')
-                ->label('Tax Name')
+                ->label(__('admin.tax_name'))
                 ->required()
                 ->maxLength(255),
             Textarea::make('description')
-                ->label('Description')
+                ->label(__('admin.description'))
                 ->required()
                 ->maxLength(1000),
             Select::make('type')
-                ->label('Calculation Type')
+                ->label(__('admin.calculation_type'))
                 ->options([
                     'percentage' => 'Percentage',
                     'fixed' => 'Fixed',
@@ -249,7 +257,7 @@ class TaxManage extends Page implements HasTable
                 ->required()
                 ->live(),
             TextInput::make('value')
-                ->label('Rate Value')
+                ->label(__('admin.rate_value'))
                 ->required()
                 ->numeric()
                 ->suffix(function (Get $get): ?string {
@@ -269,7 +277,7 @@ class TaxManage extends Page implements HasTable
                     return null;
                 }),
             Radio::make('status')
-                ->label('Status')
+                ->label(__('admin.status'))
                 ->options([
                     'active' => 'Active',
                     'inactive' => 'Inactive',

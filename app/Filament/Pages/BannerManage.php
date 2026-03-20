@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Enums\NavigationGroup;
+
 use App\Enums\BannerStatus;
 use App\Filament\Actions\TableExportAction;
 use App\Models\Banner;
@@ -32,9 +34,15 @@ class BannerManage extends Page implements HasTable
 
     protected static ?string $slug = 'banners';
 
-    protected static ?string $title = 'Banner Management';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('admin.banner_management');
+    }
 
-    protected static ?string $navigationLabel = 'Banner & Advertisement';
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.banner_advertisement');
+    }
 
     protected static ?int $navigationSort = 2;
 
@@ -47,12 +55,12 @@ class BannerManage extends Page implements HasTable
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return 'Marketing';
+        return NavigationGroup::Marketing;
     }   
 
     public function getHeading(): string|Htmlable
     {
-        return 'Banner Management';
+        return __('admin.banner_management');
     }
 
     public function getHasBanners(): bool
@@ -65,19 +73,19 @@ class BannerManage extends Page implements HasTable
 
     public function getSubheading(): ?string
     {
-        return 'Manage home screen banners for App and Web.';
+        return __('admin.manage_home_screen_banners_for_app_and_web');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('addNewBanner')
-                ->label('+ Add New Banner')
-                ->modalHeading('Add New Banner')
+            Action::make(__('admin.addnewbanner'))
+                ->label(__('admin.add_new_banner'))
+                ->modalHeading(__('admin.add_new_banner'))
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalWidth('lg')
-                ->modalSubmitActionLabel('Add Banner')
+                ->modalSubmitActionLabel(__('admin.add_banner'))
                 ->modalFooterActionsAlignment(Alignment::End)
                 ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                 ->schema($this->getBannerFormSchema())
@@ -88,7 +96,7 @@ class BannerManage extends Page implements HasTable
                     app(BannerService::class)->createBanner($data, $user->current_country_id);
 
                     Notification::make()
-                        ->title('Banner created successfully.')
+                        ->title(__('admin.banner_created_successfully'))
                         ->success()
                         ->send();
                 }),
@@ -112,12 +120,12 @@ class BannerManage extends Page implements HasTable
                     ->size(60)
                     ->grow(false),
                 TextColumn::make('title')
-                    ->label('BANNER')
+                    ->label(__('admin.banner'))
                     ->searchable()
                     ->wrap()
                     ->lineClamp(3),
                 TextColumn::make('start_date')
-                    ->label('BANNER DATES')
+                    ->label(__('admin.banner_dates'))
                     ->wrap()
                     ->formatStateUsing(function (Banner $record): HtmlString {
                         if (! $record->start_date && ! $record->end_date) {
@@ -142,14 +150,14 @@ class BannerManage extends Page implements HasTable
                         return new HtmlString(implode('<br>', $lines));
                     }),
                 TextColumn::make('target_url')
-                    ->label('TARGET LINK')
+                    ->label(__('admin.target_link'))
                     ->limit(35)
                     ->wrap()
                     ->url(fn (Banner $record): string => $record->target_url)
                     ->openUrlInNewTab()
                     ->color('primary'),
                 TextColumn::make('status')
-                    ->label('STATUS')
+                    ->label(__('admin.status'))
                     ->badge()
                     ->formatStateUsing(fn (BannerStatus $state): string => $state->label())
                     ->color(fn (BannerStatus $state): string => match ($state) {
@@ -159,22 +167,22 @@ class BannerManage extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('admin.status'))
                     ->options([
                         'active' => 'Active',
                         'inactive' => 'Inactive',
                     ]),
             ])
             ->recordActions([
-                Action::make('edit')
+                Action::make(__('admin.edit'))
                     ->iconButton()
                     ->icon('heroicon-o-pencil')
                     ->color('gray')
-                    ->modalHeading('Edit Banner')
+                    ->modalHeading(__('admin.edit_banner'))
                     ->stickyModalHeader()
                     ->stickyModalFooter()
                     ->modalWidth('lg')
-                    ->modalSubmitActionLabel('Save Banner')
+                    ->modalSubmitActionLabel(__('admin.save_banner'))
                     ->modalFooterActionsAlignment(Alignment::End)
                     ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                     ->fillForm(fn (Banner $record): array => [
@@ -190,26 +198,26 @@ class BannerManage extends Page implements HasTable
                         app(BannerService::class)->updateBanner($record, $data);
 
                         Notification::make()
-                            ->title('Banner updated successfully.')
+                            ->title(__('admin.banner_updated_successfully'))
                             ->success()
                             ->send();
                     }),
-                Action::make('delete')
+                Action::make(__('admin.delete'))
                     ->iconButton()
                     ->icon('heroicon-o-trash')
                     ->color('gray')
                     ->requiresConfirmation()
                     ->modalIcon('heroicon-o-trash')
-                    ->modalHeading('Delete Banner?')
-                    ->modalDescription('Are you sure you want to delete this banner? It will no longer be displayed to users.')
-                    ->modalSubmitActionLabel('Yes, Delete')
+                    ->modalHeading(__('admin.delete_banner'))
+                    ->modalDescription(__('admin.are_you_sure_you_want_to_delete_this_banner_it_will_no_longer_be_displayed_to_users'))
+                    ->modalSubmitActionLabel(__('admin.yes_delete'))
                     ->modalFooterActionsAlignment(Alignment::End)
                     ->modalCancelAction(fn (Action $action) => $action->extraAttributes(['class' => 'order-first']))
                     ->action(function (Banner $record): void {
                         app(BannerService::class)->deleteBanner($record);
 
                         Notification::make()
-                            ->title('Banner deleted successfully.')
+                            ->title(__('admin.banner_deleted_successfully'))
                             ->success()
                             ->send();
                     }),
@@ -227,7 +235,7 @@ class BannerManage extends Page implements HasTable
                     ->toActionGroup(),
             ])
             ->emptyStateHeading("You haven't added any banners yet.")
-            ->emptyStateDescription("Banners are displayed as sliders on the App and Web home screens. Add banners\nto control the images shown to users.")
+            ->emptyStateDescription(__('admin.banners_are_displayed_as_sliders_on_the_app_and_web_home_screens_add_bannersnto_control_the_images_shown_to_users'))
             ->emptyStateIcon('heroicon-o-flag')
             ->defaultPaginationPageOption(10);
     }
@@ -243,7 +251,7 @@ class BannerManage extends Page implements HasTable
 
         return [
             Placeholder::make('selected_country')
-                ->label('Selected Country')
+                ->label(__('admin.selected_country'))
                 ->content(new HtmlString(
                     '<div class="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">'.
                     '<img src="/assets/flags/'.strtolower($country?->iso_code ?? 'us').'.svg" class="h-8 w-8 rounded-full object-cover" alt="Flag" />'.
@@ -255,41 +263,41 @@ class BannerManage extends Page implements HasTable
                     '<p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Note: Banners are country-specific. This banner will apply only to the selected country.</p>'
                 )),
             DatePicker::make('start_date')
-                ->label('Start Date')
+                ->label(__('admin.start_date'))
                 ->minDate($isCreate ? now()->toDateString() : null)
                 ->columnSpan(1),
             DatePicker::make('end_date')
-                ->label('End Date')
+                ->label(__('admin.end_date'))
                 ->afterOrEqual('start_date')
                 ->minDate($isCreate ? now()->toDateString() : null)
                 ->columnSpan(1),
             Textarea::make('title')
-                ->label('Banner Title')
-                ->placeholder('e.g, Best Hotel')
+                ->label(__('admin.banner_title'))
+                ->placeholder(__('admin.eg_best_hotel'))
                 ->required()
                 ->maxLength(255)
                 ->rows(2)
                 ->columnSpanFull(),
             FileUpload::make('image')
-                ->label('Upload Banner')
+                ->label(__('admin.upload_banner'))
                 ->image()
                 ->disk('public')
                 ->directory('banners')
                 ->visibility('public')
                 ->maxSize(2048)
                 ->acceptedFileTypes(['image/jpeg', 'image/png'])
-                ->helperText('Maximum Size: 2MB | Resolution 1872×750 PX | Supported Files: JPG/PNG')
+                ->helperText(__('admin.maximum_size_2mb_resolution_1872750_px_supported_files_jpgpng'))
                 ->required()
                 ->columnSpanFull(),
             TextInput::make('target_url')
-                ->label('External Target Link')
-                ->placeholder('e.g, https://...')
+                ->label(__('admin.external_target_link'))
+                ->placeholder(__('admin.eg_https'))
                 ->required()
                 ->url()
                 ->maxLength(2048)
                 ->columnSpanFull(),
             Radio::make('status')
-                ->label('Status')
+                ->label(__('admin.status'))
                 ->options([
                     'active' => 'Active',
                     'inactive' => 'Inactive',

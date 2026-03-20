@@ -9,8 +9,8 @@
                     <x-heroicon-o-clock class="h-5 w-5" />
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Global Settings</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Set the universal cancellation cutoff time for this country.</p>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ __('admin.global_settings') }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.set_the_universal_cancellation_cutoff_time_for_this_country') }}</p>
                 </div>
             </div>
             
@@ -30,7 +30,7 @@
                     </div>
                     <div>
                         <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                            Save Time
+                            {{ __('admin.save_time') }}
                         </button>
                     </div>
                 </form>
@@ -45,14 +45,14 @@
                         <x-heroicon-o-no-symbol class="h-5 w-5" />
                     </div>
                     <div>
-                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Cancellation Rules</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Rules regarding booking cancellations, refunds, and no-shows.</p>
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ __('admin.cancellation_rules') }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.rules_regarding_booking_cancellations_refunds_and_noshows') }}</p>
                     </div>
                 </div>
                 
                 @if(!$showForm)
                     <button wire:click="addNewRule" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                        <x-heroicon-o-plus class="h-4 w-4" /> Add Rule
+                        <x-heroicon-o-plus class="h-4 w-4" /> {{ __('admin.add_rule') }}
                     </button>
                 @endif
             </div>
@@ -69,14 +69,14 @@
                                     <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gray-900 text-sm font-bold text-white dark:bg-gray-700">
                                         {{ $index + 1 }}
                                     </div>
-                                    <span class="text-sm font-bold text-gray-900 dark:text-white">Rule</span>
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ __('admin.rule') }}</span>
                                 </div>
                                 <div class="flex gap-2">
                                     <button type="button" wire:click="cancelRule" class="rounded-lg border border-gray-200 bg-white p-2 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400" title="Cancel">
                                         <x-heroicon-o-trash class="h-5 w-5" />
                                     </button>
                                     <button type="button" wire:click="saveRule" class="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                                        Save Rule
+                                        {{ __('admin.save_rule') }}
                                     </button>
                                 </div>
                             </div>
@@ -92,7 +92,7 @@
                                     {{ $index + 1 }}
                                 </div>
                                 <div>
-                                    <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Cancellation Period</p>
+                                    <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">{{ __('admin.cancellation_period') }}</p>
                                     <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $ruleItem['days_before_checkin'] }} Days Before Check-in</p>
                                 </div>
                             </div>
@@ -128,14 +128,14 @@
                                 <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gray-900 text-sm font-bold text-white dark:bg-gray-700">
                                     {{ count($rulesList) + 1 }}
                                 </div>
-                                <span class="text-sm font-bold text-gray-900 dark:text-white">Rule</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ __('admin.rule') }}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button type="button" wire:click="cancelRule" class="rounded-lg border border-gray-200 bg-white p-2 text-gray-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-red-400" title="Cancel">
                                     <x-heroicon-o-trash class="h-5 w-5" />
                                 </button>
                                 <button type="button" wire:click="saveRule" class="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                                    Save Rule
+                                    {{ __('admin.save_rule') }}
                                 </button>
                             </div>
                         </div>
@@ -169,18 +169,18 @@
                                 <x-heroicon-o-trash class="h-6 w-6 text-red-600 dark:text-red-500" />
                             </div>
                             <div class="mt-3 text-center sm:mt-5">
-                                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-white" id="modal-title">Delete Cancellation Policy Rule?</h3>
+                                <h3 class="text-lg font-bold leading-6 text-gray-900 dark:text-white" id="modal-title">{{ __('admin.delete_cancellation_policy_rule') }}</h3>
                                 <div class="mt-2">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete? This rule will no longer apply to any bookings.</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.are_you_sure_you_want_to_delete_this_rule_will_no_longer_apply_to_any_bookings') }}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
                             <button type="button" @click="ruleToDelete = null" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-600 dark:hover:bg-gray-700 transition">
-                                Cancel
+                                {{ __('admin.cancel') }}
                             </button>
                             <button type="button" x-on:click="$wire.deleteRule(ruleToDelete).then(() => { ruleToDelete = null; })" class="inline-flex w-full justify-center rounded-lg bg-red-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:col-start-2 transition">
-                                Yes, Delete
+                                {{ __('admin.yes_delete') }}
                             </button>
                         </div>
                     </div>

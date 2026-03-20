@@ -24,9 +24,9 @@
                 </div>
 
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Who we are Section</h4>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.who_we_are_section') }}</h4>
                     <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                        Update the content that introduces your property and its identity to guests.
+                        {{ __('admin.update_the_content_that_introduces_your_property_and_its_identity_to_guests') }}
                     </p>
                 </div>
 
@@ -118,14 +118,14 @@
                                             </div>
                                             
                                             <div class="text-sm text-gray-600 dark:text-gray-400">
-                                                <span class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">Drag and Drop file here</span>
-                                                or <span class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">Choose File</span>
+                                                <span class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">{{ __('admin.drag_and_drop_file_here') }}</span>
+                                                or <span class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">{{ __('admin.choose_file') }}</span>
                                             </div>
                                         </div>
 
                                         {{-- Loading state --}}
                                         <div wire:loading wire:target="whoImageUpload" class="mt-3 text-sm text-blue-500">
-                                            Uploading...
+                                            {{ __('admin.uploading') }}
                                         </div>
 
                                         {{-- Preview selected or saved image --}}
@@ -136,14 +136,14 @@
                                         @elseif ($who_image)
                                             <div class="mt-4 flex flex-col items-center gap-2">
                                                 <img src="{{ Storage::url($who_image) }}" alt="Preview" class="max-h-32 rounded-lg object-contain" />
-                                                <span class="text-xs text-gray-500">Current Image</span>
+                                                <span class="text-xs text-gray-500">{{ __('admin.current_image') }}</span>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                                 <div class="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                                    <p>Maximum Size: 1620Px width and 600Px Hight</p>
-                                    <p>Supported Files: PNG/SVG</p>
+                                    <p>{{ __('admin.maximum_size_1620px_width_and_600px_hight') }}</p>
+                                    <p>{{ __('admin.supported_files_pngsvg') }}</p>
                                 </div>
                                 @error('whoImageUpload')
                                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -158,8 +158,8 @@
                                 type="submit"
                                 class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
-                                <span wire:loading.remove wire:target="saveWhoWeAre">Save Changes</span>
-                                <span wire:loading wire:target="saveWhoWeAre">Saving...</span>
+                                <span wire:loading.remove wire:target="saveWhoWeAre">{{ __('admin.save_changes') }}</span>
+                                <span wire:loading wire:target="saveWhoWeAre">{{ __('admin.saving') }}</span>
                             </button>
                         </div>
                     </form>
@@ -177,8 +177,8 @@
                     <x-heroicon-o-check-circle class="h-5 w-5 text-blue-500 transition-colors duration-200 dark:text-gray-400" x-bind:class="openSection === 'key_highlights' ? '!text-white' : ''" />
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Manage Key Highlights</h4>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Add up to 4 key points to showcase your property's strongest features.</p>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.manage_key_highlights') }}</h4>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.add_up_to_4_key_points_to_showcase_your_propertys_strongest_features') }}</p>
                 </div>
                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800" x-bind:style="openSection === 'key_highlights' ? 'background-color: #2563eb; border-color: #2563eb;' : ''">
                     <x-heroicon-o-chevron-down class="h-4 w-4 text-gray-500 transition-transform duration-200 dark:text-gray-400" x-bind:class="openSection === 'key_highlights' ? 'rotate-180 !text-white' : ''" />
@@ -195,7 +195,7 @@
                                     <div class="mb-4 flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <span class="flex h-8 w-8 items-center justify-center rounded bg-gray-900 text-sm font-semibold text-white dark:bg-gray-800">{{ $index + 1 }}</span>
-                                            <span class="text-sm font-medium text-gray-900 dark:text-white">Point</span>
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ __('admin.point') }}</span>
                                         </div>
                                         @if(count($highlights) > 1)
                                             <button type="button" wire:click="removeHighlight({{ $index }})" class="text-red-500 hover:text-red-700">
@@ -221,7 +221,7 @@
                             @if(count($highlights) < 4)
                                 <button type="button" wire:click="addHighlight" class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500">
                                     <span class="flex items-center gap-1">
-                                        <x-heroicon-o-plus class="h-4 w-4" /> Add New Key Highlight
+                                        <x-heroicon-o-plus class="h-4 w-4" /> {{ __('admin.add_new_key_highlight') }}
                                     </span>
                                 </button>
                             @endif
@@ -229,8 +229,8 @@
 
                         <div class="mt-6">
                             <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                                <span wire:loading.remove wire:target="saveKeyHighlights">Save Changes</span>
-                                <span wire:loading wire:target="saveKeyHighlights">Saving...</span>
+                                <span wire:loading.remove wire:target="saveKeyHighlights">{{ __('admin.save_changes') }}</span>
+                                <span wire:loading wire:target="saveKeyHighlights">{{ __('admin.saving') }}</span>
                             </button>
                         </div>
                     </form>
@@ -248,8 +248,8 @@
                     <x-heroicon-o-bars-3-bottom-left class="h-5 w-5 text-gray-500 transition-colors duration-200 dark:text-gray-400" x-bind:class="openSection === 'our_promise' ? '!text-white' : ''" />
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">Our Promise Section</h4>
-                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Accepted forms of payment for bookings and services.</p>
+                    <h4 class="text-sm font-semibold text-gray-950 dark:text-white">{{ __('admin.our_promise_section') }}</h4>
+                    <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ __('admin.accepted_forms_of_payment_for_bookings_and_services') }}</p>
                 </div>
                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800" x-bind:style="openSection === 'our_promise' ? 'background-color: #2563eb; border-color: #2563eb;' : ''">
                     <x-heroicon-o-chevron-down class="h-4 w-4 text-gray-500 transition-transform duration-200 dark:text-gray-400" x-bind:class="openSection === 'our_promise' ? 'rotate-180 !text-white' : ''" />
@@ -274,7 +274,7 @@
                             </div>
 
                             <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
-                                <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">Key Features (bullet Points)</label>
+                                <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.key_features_bullet_points') }}</label>
                                 <div class="space-y-3">
                                     @foreach ($promise_features as $index => $feature)
                                         <div class="relative flex items-center">
@@ -289,10 +289,10 @@
                                 </div>
                                 <div class="mt-3 flex items-center justify-between">
                                     <p class="flex items-center gap-1 text-xs font-medium text-red-500">
-                                        <x-heroicon-o-information-circle class="h-4 w-4" /> Maximum 4 key Points allowed.
+                                        <x-heroicon-o-information-circle class="h-4 w-4" /> {{ __('admin.maximum_4_key_points_allowed') }}
                                     </p>
                                     @if(count($promise_features) < 4)
-                                        <button type="button" wire:click="addFeature" class="text-sm font-medium text-blue-600 hover:text-blue-500 text-right">+ Add Feature</button>
+                                        <button type="button" wire:click="addFeature" class="text-sm font-medium text-blue-600 hover:text-blue-500 text-right">{{ __('admin.add_feature') }}</button>
                                     @endif
                                 </div>
                             </div>
@@ -300,8 +300,8 @@
 
                         <div class="mt-6">
                             <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                                <span wire:loading.remove wire:target="saveOurPromise">Save Changes</span>
-                                <span wire:loading wire:target="saveOurPromise">Saving...</span>
+                                <span wire:loading.remove wire:target="saveOurPromise">{{ __('admin.save_changes') }}</span>
+                                <span wire:loading wire:target="saveOurPromise">{{ __('admin.saving') }}</span>
                             </button>
                         </div>
                     </form>

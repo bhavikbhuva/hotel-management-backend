@@ -8,7 +8,7 @@
                 style="{{ $currentTab === 'how-it-works' ? 'background-color: #2563eb; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1);' : 'color: #4b5563;' }}"
             >
                 <x-heroicon-o-list-bullet class="h-4 w-4" />
-                How It Works
+                {{ __('admin.how_it_works') }}
             </button>
 
             <button
@@ -17,7 +17,7 @@
                 style="{{ $currentTab === 'faqs' ? 'background-color: #2563eb; color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.1);' : 'color: #4b5563;' }}"
             >
                 <x-heroicon-o-question-mark-circle class="h-4 w-4" />
-                Topics & FAQs
+                {{ __('admin.topics_faqs') }}
             </button>
         </div>
 
@@ -63,7 +63,7 @@
                     </div>
 
                     <h4 class="text-base font-semibold text-gray-950 dark:text-white">
-                        No steps added yet
+                        {{ __('admin.no_steps_added_yet') }}
                     </h4>
                     <p class="max-w-md text-sm text-gray-500 dark:text-gray-400">
                         This section allows you to define step-by-step guidance shown to users
@@ -146,7 +146,7 @@
                                 @else
                                     <div class="px-5 py-6 text-center">
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            No FAQs added to this topic yet.
+                                            {{ __('admin.no_faqs_added_to_this_topic_yet') }}
                                         </p>
                                     </div>
                                 @endif
@@ -175,7 +175,7 @@
                     </div>
 
                     <h4 class="text-base font-semibold text-gray-950 dark:text-white">
-                        No topics or FAQs created
+                        {{ __('admin.no_topics_or_faqs_created') }}
                     </h4>
                     <p class="max-w-md text-sm text-gray-500 dark:text-gray-400">
                         Create help topics and FAQs to answer common user questions related to

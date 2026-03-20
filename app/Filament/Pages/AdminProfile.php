@@ -51,7 +51,7 @@ class AdminProfile extends Page
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return Action::make('editProfile')
+        return Action::make(__('admin.editprofile'))
             ->label(__('admin.edit_details'))
             ->modalHeading(__('admin.edit_profile'))
             ->stickyModalHeader()
@@ -74,7 +74,7 @@ class AdminProfile extends Page
                     ->directory('avatars')
                     ->maxSize(5120)
                     ->acceptedFileTypes(['image/png', 'image/svg+xml', 'image/jpeg'])
-                    ->helperText('Maximum Size: 5MB. Supported Files: PNG/SVG/JPG'),
+                    ->helperText(__('admin.maximum_size_5mb_supported_files_pngsvgjpg')),
                 TextInput::make('name')
                     ->label(__('admin.name'))
                     ->required()
@@ -84,7 +84,7 @@ class AdminProfile extends Page
                     ->required()
                     ->tel()
                     ->maxLength(20)
-                    ->placeholder('E.g., +1 (555) 123-4567'),
+                    ->placeholder(__('admin.eg_1_555_1234567')),
                 TextInput::make('email')
                     ->label(__('admin.email'))
                     ->required()

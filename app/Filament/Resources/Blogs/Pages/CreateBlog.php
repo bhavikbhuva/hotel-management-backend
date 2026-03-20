@@ -18,21 +18,21 @@ class CreateBlog extends CreateRecord
 
     public function getHeading(): string|Htmlable
     {
-        return 'Create New Blog';
+        return __('admin.create_new_blog');
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('saveDraft')
-                ->label('Save Draft')
+            Action::make(__('admin.savedraft'))
+                ->label(__('admin.save_draft'))
                 ->color('gray')
                 ->formId('form')
                 ->action(function (): void {
                     $this->saveBlog(BlogStatus::Draft->value);
                 }),
-            Action::make('publish')
-                ->label('Publish')
+            Action::make(__('admin.publish'))
+                ->label(__('admin.publish'))
                 ->formId('form')
                 ->action(function (): void {
                     $this->saveBlog(BlogStatus::Published->value);
@@ -55,8 +55,8 @@ class CreateBlog extends CreateRecord
 
             if ($category && $category->status === BlogCategoryStatus::Draft) {
                 Notification::make()
-                    ->title('Cannot publish this blog.')
-                    ->body('The selected category is still in draft. Publish the category first.')
+                    ->title(__('admin.cannot_publish_this_blog'))
+                    ->body(__('admin.the_selected_category_is_still_in_draft_publish_the_category_first'))
                     ->danger()
                     ->send();
 
